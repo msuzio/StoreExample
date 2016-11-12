@@ -1,6 +1,7 @@
 ## Synopsis
 
-A simple example of data modeling, test cases, and some more complex multi-threaded behavior and testing, using a grocery store as an example.
+A simple example of data modeling, test cases, and some more complex multi-threaded behavior and testing, 
+using a grocery store as an example.
 
 ## Code Example
 
@@ -21,7 +22,7 @@ jUnit tests are stored in the src/main/test directory; they depend on jUnit 4.1.
 
 
 ## Contributors
-[ Michael Suzio (https://github.com/msuzio) ]
+[Michael Suzio](https://github.com/msuzio)
 
 ## License
 Public domain.
