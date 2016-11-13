@@ -2,9 +2,8 @@ package net.suzio.model;
 
 import org.junit.Test;
 
-import java.lang.reflect.Constructor;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Should not be testing overall system behavior; that is too encompassing for test cases just to validate our contract
@@ -13,22 +12,25 @@ import static org.junit.Assert.*;
 public class StoreTest {
 
     @Test
-    public void testIsSingleton() {
-        // no public constructor
-        Constructor<?>[] constructors = Store.class.getConstructors();
-        assertEquals("Error in Store singleton implemention. Mumber of constructors",0,constructors.length);
-
-        // instances from getInstance are same object
-        Store s1 = Store.getInstance();
-        Store s2 = Store.getInstance();
-
-        assertSame(s1,s2);
+    public void storeStartsClosed() {
+        Store store = new Store();
+        assertFalse("Store.isOpen returns true on initialization.",store.isOpen());
+        assertTrue("Store.isClosed returns false on initialization.",store.isClosed());
     }
 
     @Test
-    public void storeStartsClosed() {
-        Store store = Store.getInstance();
-        assertFalse("Store.isOpen returns true on initialization.",store.isOpen());
-        assertTrue("Store.isClosed returns false on initialization.",store.isClosed());
+    public void storelineLimit() {
+        int lineLimit = 5;
+        Store store = new Store(lineLimit);
+        int shopperNumber;
+        for (shopperNumber = 0; shopperNumber < lineLimit; shopperNumber++) {
+            boolean allowed = store.addWaitingShopper(new Shopper());
+            assertTrue("Shopper" + shopperNumber + " not allowed in waiting line with set limit of " + lineLimit, allowed);
+        }
+
+        // reached our limit, should refuse Shopper
+        boolean shouldNotBeAllowed = store.addWaitingShopper(new Shopper());
+        assertFalse("Shopper " + shopperNumber + "allowed in past set Store wait limit of" + lineLimit, shouldNotBeAllowed);
+
     }
 }
