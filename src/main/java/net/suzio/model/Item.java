@@ -1,5 +1,8 @@
 package net.suzio.model;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Models an Item in a store inventory.
  * Item objects may only be created via the public constructor, and are immutable by design 
@@ -12,28 +15,58 @@ public class Item {
 	private String name;
 	private double price;
 	private String category;
-	private ItemUnit units;
+	private String units;
+
+    private static final Pattern CONTAINS_AlPHA_NUMERIC;
+    static
+    {
+        // Precompile to reduce overhead
+        // Safe to use in multiple threads; the matcher from this is not
+        // Can't just use \w, that would match something like "____"
+        CONTAINS_AlPHA_NUMERIC = Pattern.compile("[A-Za-z0-9]+");
+    }
 
     /**
-     * Constructor.
-     * Once created, instances are immutable.
-     * There is no validation of arguments currently; the Inventory object is the generally single point of responsiblity
-     * in the application for creating new instances. This may change in the future.
-     * @see net.suzio.service.Inventory
-     * @param name
-     * @param price
-     * @param units
-     * @param category
+     * Constructor.Once created, instances are immutable
+     * @param name Name of item
+     * @param price Price per unit of item
+     * @param units Description of unit measure; purely informative
+     * @param category Description of item category
+     * @throws InvalidItemException error if item information is invalid
      */
-	public Item(String name, double price, ItemUnit units, String category) {
+	public Item(String name, double price, String units, String category) throws InvalidItemException {
 		super();
+        if (!validateString(name)) {
+            throw new InvalidItemException("Name '" + "' is not valid (must have at least one alphanumeric character)");
+        }
 		this.name = name;
-		this.price = price; // we're OK with a zero price; loading process should vsalidate that
+        // note that zero is a legitimate price (freebies!)
+        if (price < 0){
+            throw new InvalidItemException("Price cannot be negative");
+        }
+		this.price = price;
+        if (!validateString(units)) {
+            throw new InvalidItemException("units '" + "' are not valid (must have at least one alphanumeric character)");
+        }
         this.units = units;
+        if (!validateString(category)) {
+            throw new InvalidItemException("Category '" + "' is not valid (must have at least one alphanumeric character)");
+        }
+        
 		this.category = category;
 	}
 
-    public ItemUnit getUnits() {
+    private boolean validateString(String value) {
+        value = value != null? value.trim() :null;
+        return (value != null) && (!value.isEmpty()) && matchesAlphaNumeric(value);
+    }
+
+    private boolean matchesAlphaNumeric(String value) {
+        Matcher m = CONTAINS_AlPHA_NUMERIC.matcher(value);
+        return m.find();
+    }
+
+    public String getUnits() {
         return units;
     }
 
@@ -60,7 +93,7 @@ public class Item {
         if (Double.compare(item.price, price) != 0) return false;
         if (!name.equals(item.name)) return false;
         if (!category.equals(item.category)) return false;
-        return units == item.units;
+        return units.equals(item.units);
 
     }
 
