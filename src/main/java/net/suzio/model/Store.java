@@ -22,8 +22,8 @@ public class Store {
 
     // use non-concurrent Map, and lock selectively
     // in a real application, we would benchmark this against ConcurrentHashMap
-    HashMap<String, Item> stock = new HashMap<>();
-    ReadWriteLock stockLock = new ReentrantReadWriteLock();
+    private HashMap<String, Item> stock = new HashMap<>();
+    private ReadWriteLock stockLock = new ReentrantReadWriteLock();
 
 
     /**
