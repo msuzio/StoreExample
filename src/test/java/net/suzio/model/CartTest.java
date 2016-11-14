@@ -2,11 +2,11 @@ package net.suzio.model;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static org.junit.Assert.fail;
 
 /**
  *
@@ -24,9 +24,9 @@ public class CartTest {
 
         Set<Item> itemsToAdd = new HashSet<>();
         try {
-            itemsToAdd.add(new Item("Bananas", 0.99, "LB", "fruit"));
-            itemsToAdd.add(new Item("Almonds", 5.99, "jar", "Snack"));
-            itemsToAdd.add(new Item("Orange Juice", 2.99, "Gallon", "Beverage"));
+            itemsToAdd.add(new Item("Bananas", 0.99, 1, "LB"));
+            itemsToAdd.add(new Item("Almonds", 5.99, 4, "jar"));
+            itemsToAdd.add(new Item("Orange Juice", 2.99, 1, "Gallon"));
         } catch (InvalidItemException e) {
             fail("Error in test case -- created an invalid Item: " +e.getMessage());
         }

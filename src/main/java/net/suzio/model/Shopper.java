@@ -1,17 +1,30 @@
 package net.suzio.model;
 
 /**
+ * Model a Shopper, a Runnable unit that performs a shopping task
  * Created by Michael on 11/13/2016.
  */
-public class Shopper {
-
-    // process of shopping.
-    //Cannot start until we are allowed to enter
+public class Shopper implements Runnable {
+    /**
+     * Alias for the run() method
+     *
+     * @see #run()
+     */
     public void shop() {
-        // see if Store is Open
-        // Open -- start shopping
-        // Closed -- Decide if we will wait
-        // if we want to wait, notify Store we want to do so
-        // then we are in a wait state until we get notified to proceed
+        run();
+    }
+
+    /**
+     * run() method of Runnable interface. Default case just calls shop() method
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     * </p>
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        // Do nothing right now
     }
 }
