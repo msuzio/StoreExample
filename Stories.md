@@ -44,7 +44,7 @@ Correcting bad design points and poor structure
  
  Correct package structure
  
- * Move all net.suzio.* packages to net.suzio.store.*
+ ~~* Move all net.suzio.* packages to net.suzio.store.*~~
  
 ## Backlog
  * Register implementation and checkout with Receipt.
