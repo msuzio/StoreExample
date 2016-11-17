@@ -1,5 +1,6 @@
 # Story List
 ##Iteration one:
+
 ~~* Create an Item object with Name,count,and quantity
    * Items should be immutable
    * Items should validate the name and category contain alphanumerics
@@ -21,6 +22,7 @@
    
 ## Iteration 3:
 ### Focus
+
 Implementing skeleton of Store/Shopper interactions
 
 * Store
