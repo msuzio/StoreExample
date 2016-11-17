@@ -16,14 +16,10 @@ public class Item {
     private int quantity;
     private String units;
 
-    private static final Pattern CONTAINS_AlPHA_NUMERIC;
-
-    static {
-        // Precompile to reduce overhead
-        // Safe to use in multiple threads; the matcher from this is not
-        // Can't just use \w, that would match something like "____"
-        CONTAINS_AlPHA_NUMERIC = Pattern.compile("[A-Za-z0-9]+");
-    }
+    // Precompile to reduce overhead
+    // Safe to use in multiple threads; the matcher from this is not
+    // Can't just use \w, that would match something like "____"
+    private static final Pattern CONTAINS_AlPHA_NUMERIC = Pattern.compile("[A-Za-z0-9]+");
 
     // for internal use
     private Item() {
@@ -91,21 +87,63 @@ public class Item {
      *
      * @param into Item to merge properties into
      * @param from Item to merge properties from, overriding or modifying the properties of into.
-     * @return Merge a new set of data with this Item, returning a new Item.
-     * @throws InvalidItemException If the two items are not identically named
+     * @return Merge a new set of data with this Item, returning a new Item..  If Item names do not match, returns into Item unchanged
      */
-    public static Item merge(Item into, Item from) throws InvalidItemException {
+    public static Item merge(Item into, Item from) {
+        if (into == null || from == null) {
+            return into;
+        }
+
         Item item = new Item();
         if (!(into.getName().equals(from.getName()))) {
-            throw new InvalidItemException("Merged attempted on two non-identical Items. Original item == '" + into.name + "'"
-                    + "Item to merge from = '"
-                    + from.name + "'");
+            return into;
         } else {
+            // For now, negative results are accepted and use cases judge if this makes sense
             item.quantity = into.quantity + from.quantity;
             item.name = from.name;
             item.price = from.price;
             item.units = from.units;
         }
         return item;
+    }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Item item = (Item) o;
+
+        //IDEA SUGGESTED THIS TRICKY FORM *AFTER* AUTO-GENERATING A MORE VERBOSE FORM
+        //Might be a bad inspection to leave on or perhaps it needs tuning
+        return (Double.compare(item.price, price) == 0)
+                && (quantity == item.quantity)
+                && name.equals(item.name)
+                && units.equals(item.units);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = name.hashCode();
+        temp = Double.doubleToLongBits(price);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        result = 31 * result + quantity;
+        result = 31 * result + units.hashCode();
+        return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Item{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", price=").append(price);
+        sb.append(", quantity=").append(quantity);
+        sb.append(", units='").append(units).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

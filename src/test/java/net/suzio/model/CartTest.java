@@ -8,15 +8,11 @@ import java.util.Set;
 
 import static org.junit.Assert.fail;
 
-/**
- *
- * Created by Michael on 11/12/2016.
- */
 public class CartTest {
 
 
     /**
-     * Assert that if we add Items to rhe cart, we can get them back (insertion order doesn't matter)
+     * Assert that if we add Items to the cart, we can get them back (insertion order doesn't matter)
      */
     @Test
     public void testCartAddandFetchReciprocal() {
@@ -28,7 +24,7 @@ public class CartTest {
             itemsToAdd.add(new Item("Almonds", 5.99, 4, "jar"));
             itemsToAdd.add(new Item("Orange Juice", 2.99, 1, "Gallon"));
         } catch (InvalidItemException e) {
-            fail("Error in test case -- created an invalid Item: " +e.getMessage());
+            fail("Error in test case -- created an invalid Item: " + e.getMessage());
         }
 
         for (Item item : itemsToAdd) {

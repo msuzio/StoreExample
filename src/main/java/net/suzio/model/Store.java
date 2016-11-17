@@ -8,20 +8,23 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
- * Store controller.
+ * Store controller. Houses stock of Items
  * <p>
  * Created by Michael on 11/12/2016.
  */
 public class Store {
 
+    // Just using volatile probably isn't good enough
     private AtomicBoolean open = new AtomicBoolean(false);
     // our waiting shoppers are always in a Queue
     private LinkedBlockingQueue<Shopper> waitingShoppers;
+
     // Not sure if this is needed; remove until use case is clear
     // private List<Shopper> activeShoppers = new ArrayList<>();
 
-    // use non-concurrent Map, and lock selectively
-    // in a real application, we would benchmark this against ConcurrentHashMap
+    // use non-concurrent Map, and lock selectively.
+    // TODO -- benchmark this against ConcurrentHashMap
+    // TODO -- Move this into a Service rather than internal store? JPA or Spring Data storage would be closer to a real model, and separating this out paves the way
     private HashMap<String, Item> stock = new HashMap<>();
     private ReadWriteLock stockLock = new ReentrantReadWriteLock();
 
@@ -55,7 +58,7 @@ public class Store {
      */
     public Item addItem(Item item) {
         Lock wLock = stockLock.writeLock();
-        // this really shuld be initialized somewhere below; if we mess that up,
+        // this really should always be initialized somewhere below; if we mess that up,
         // unit tests should catch that and fail
         Item stockItem = null;
 
@@ -75,14 +78,16 @@ public class Store {
                 stock.put(name, item);
                 stockItem = item;
             }
-        } catch (InvalidItemException e) {
-            // essentially cannot happen; if it does for some reason, we haven't updated our stock anyway
         } finally {
             wLock.unlock();
         }
         return stockItem;
     }
 
+    /**
+     * @param name Name of item to query
+     * @return Item matching name if in stock, or null
+     */
     public Item queryItem(String name) {
         Lock rLock = stockLock.readLock();
         Item item = null;
@@ -95,7 +100,46 @@ public class Store {
         return item;
     }
 
-    // Shopper management operations
+    /**
+     * Request an Item fom the Store stockby name, and record decremented quantity
+     *
+     * @param itemName          Name of Item to take from stock
+     * @param requestedQuantity units of Item to take
+     * @return Item  -- null if the Store does not have that Item, or a valid Item reflecting the requested quantity, or a lower quantity if the Store does not have that many units
+     */
+    public Item takeItem(String itemName, int requestedQuantity) {
+        // get Item from stock -- while we do this, nothing else should be modifying the stock
+        // so keep this method small
+        Lock wLock = stockLock.writeLock();
+        Item returnedItem = null;
+
+        wLock.lock();
+        try {
+            Item stockItem = queryItem(itemName);
+            if (stockItem != null) {
+                // We have to do our modifications here before we release the lock
+                int stockedQuantity = stockItem.getQuantity();
+                int diff = stockedQuantity - requestedQuantity;
+                if (diff < 0) {
+                    // return all we have, and zero out quantity
+                    returnedItem = new Item(itemName, stockItem.getPrice(), stockItem.getQuantity(), stockItem.getUnits());
+                    stockItem = new Item(itemName, stockItem.getPrice(), 0, stockItem.getUnits());
+                    stock.put(itemName, stockItem);
+                } else {
+                    returnedItem = new Item(itemName, stockItem.getPrice(), requestedQuantity, stockItem.getUnits());
+                    stockItem = new Item(itemName, stockItem.getPrice(), diff, stockItem.getUnits());
+                    stock.put(itemName, stockItem);
+                }
+            } // else returnedItem stays null
+        } catch (InvalidItemException e) {
+            // should not happen
+        } finally {
+            wLock.unlock();
+        }
+        // return what we have right now -- so currently if new stock came in after we releaed the lock and before we return,
+        // the requester does not see it. right now, tough luck for our Shopper
+        return returnedItem;
+    }
 
     /**
      * Open the Store
