@@ -46,12 +46,13 @@ Correcting bad design points and poor structure
  
  ~~* Move all net.suzio.* packages to net.suzio.store.*~~
  
-## Backlog
+## Backlog / Discussion points
  * Register implementation and checkout with Receipt.
      * Implies we also have a method of submitting Shoppers to a pool of Registers
- * Consider if all Item list operations should really be consistently Maps rather than implicit folding of quantities 
+ * Consider if all Item list operations should really be consistently Maps rather than constant implicit folding of quantities 
  * Shoppers should exit the store so Store.close() really knows it can complete close operation
     * This implies a"closing" state
+    * Also implies Store keep track of Shoppers currently in the Store. This may be more complex than desirable.
  * Add logging (split into multiple stories as needed)
  * Move stock control out of Store, removing most of the threading concerns
     * methods should be suitable for any datasource, mirorring CRUD focus
