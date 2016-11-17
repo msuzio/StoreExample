@@ -44,6 +44,7 @@ public class Store {
      * @param waitSize limit on number of Shoppers that can be in waiting line
      */
     public Store(int waitSize) {
+        this();
         waitingShoppers = new LinkedBlockingQueue<>(waitSize);
     }
 
@@ -54,7 +55,7 @@ public class Store {
      * Items are merged according to rules of {@link Item#merge}
      * Repricing an Item consists of adding a newly priced Item with a quantity of zero
      *
-     * @param item The new Item in the stock. in the case of an exception during additive case, the existing Item is guaranteed to be preserved.
+     * @param item The new Item in the stock. in the case of an error during additive case, the existing Item is guaranteed to be preserved.
      */
     public Item addItem(Item item) {
         Lock wLock = stockLock.writeLock();
@@ -101,7 +102,7 @@ public class Store {
     }
 
     /**
-     * Request an Item fom the Store stockby name, and record decremented quantity
+     * Request an Item fom the Store stock by name, and record decremented quantity
      *
      * @param itemName          Name of Item to take from stock
      * @param requestedQuantity units of Item to take
@@ -136,8 +137,8 @@ public class Store {
         } finally {
             wLock.unlock();
         }
-        // return what we have right now -- so currently if new stock came in after we releaed the lock and before we return,
-        // the requester does not see it. right now, tough luck for our Shopper
+        // return what we have right now -- so currently if new stock came in after we released the lock and before we return,
+        // the requester does not see it. Right now, tough luck for our Shopper
         return returnedItem;
     }
 
@@ -156,7 +157,7 @@ public class Store {
      *
      * todo - can this be removed? Intent was originally to have te Store determine if the Shopper should go into waiting line.
      * @param shopper A Shopper attempting to enter the Store and shop.
-     * @return true if the Shopper was accepted (always accepted if open, rejected if closed.
+     * @return true if the Shopper was accepted (always accepted if open, rejected if closed).
      */
     public boolean enter(Shopper shopper) {
         return isOpen();
