@@ -13,6 +13,7 @@
    * accept Shoppers if open or let them wait if they want to (waiting must be able to be limited to a set number if desired)~~
  
 ## Iteration Two:
+
 ~~* Add Stock population,querying, and modifying methods to Store.~~
 ~~* All these methods must be synchronized for read/write~~
    ~~* adding an Item to the stock. **(write)**~~
@@ -20,7 +21,7 @@
    * taking a given quantity of an Item from the stock **(write)** (Moved to Iteration 3)
    ~~* Updating an item price (in place, effective immediately) **(write)**~~
    
-## Iteration 3:
+## Iteration Three:
 ### Focus
 
 Implementing skeleton of Store/Shopper interactions
@@ -33,7 +34,7 @@ Implementing skeleton of Store/Shopper interactions
  ~~* Modifies shopping list to remove Items and quantity it actually managed to buy (we assume checkout completes successfully right now)~~
  ~~* Can report what Items it did not find from list.~~
  
-## Iteration 4:
+## Iteration Four:
 ### Focus
 
 Correcting bad design points and poor structure
@@ -41,12 +42,13 @@ Correcting bad design points and poor structure
 ~~* Item should not throw an Exception in the constructor.
    * This mis-feature is spread out smongst the code base.  Touch all areas as needed.~~
    
-## Iteration Five
+## Iteration Five:
 ### Focus
  
  Correct package structure
  
  ~~* Move all net.suzio.* packages to net.suzio.store.*~~
+ 
  
 ## Backlog / Discussion points
  * Register implementation and checkout with Receipt.
