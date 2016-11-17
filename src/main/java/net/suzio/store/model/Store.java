@@ -1,4 +1,4 @@
-package net.suzio.model;
+package net.suzio.store.model;
 
 import java.util.HashMap;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -158,11 +158,7 @@ public class Store {
      * @return true if the Shopper was accepted (always accepted if open, rejected if closed.
      */
     public boolean enter(Shopper shopper) {
-        if (isOpen()) {
-            // activeShoppers.add(shopper);
-            return true;
-        }
-        return false;
+        return isOpen();
     }
 
     /**

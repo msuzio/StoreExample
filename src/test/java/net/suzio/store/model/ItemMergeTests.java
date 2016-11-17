@@ -1,4 +1,4 @@
-package net.suzio.model;
+package net.suzio.store.model;
 
 import org.junit.Test;
 

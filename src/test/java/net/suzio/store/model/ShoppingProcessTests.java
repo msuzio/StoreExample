@@ -1,6 +1,6 @@
-package net.suzio.model;
+package net.suzio.store.model;
 
-import net.suzio.model.util.ItemUtil;
+import net.suzio.store.model.util.ItemUtil;
 import org.junit.Test;
 
 import java.util.Arrays;

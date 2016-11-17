@@ -1,6 +1,6 @@
-package net.suzio.model.util;
+package net.suzio.store.model.util;
 
-import net.suzio.model.Item;
+import net.suzio.store.model.Item;
 
 import java.util.HashMap;
 import java.util.Map;

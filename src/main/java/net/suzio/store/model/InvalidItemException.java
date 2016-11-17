@@ -1,4 +1,4 @@
-package net.suzio.model;
+package net.suzio.store.model;
 
 // needed by javadoc reference; no harm
 
