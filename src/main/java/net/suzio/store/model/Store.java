@@ -154,7 +154,8 @@ public class Store {
     /**
      * lets a Shopper attempt to enter the store
      *
-     * @param shopper A Shopper attempting to enter the Store and shop
+     * todo - can this be removed? Intent was originally to have te Store determine if the Shopper should go into waiting line.
+     * @param shopper A Shopper attempting to enter the Store and shop.
      * @return true if the Shopper was accepted (always accepted if open, rejected if closed.
      */
     public boolean enter(Shopper shopper) {
