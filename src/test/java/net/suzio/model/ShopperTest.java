@@ -16,15 +16,11 @@ public class ShopperTest {
     @Test
     public void testMakeShoppingList() {
         Store store = new Store();
-        List<Item> items = null;
-        try {
-            items = Arrays.asList(
-                    new Item("Peanut Butter", 5.99, 1, "jar"),
-                    new Item("Jelly", 5.99, 1, "jar")
-            );
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        List<Item> items = Arrays.asList(
+                new Item("Peanut Butter", 5.99, 1, "jar"),
+                new Item("Jelly", 5.99, 1, "jar")
+        );
+
         Shopper shopper = new Shopper(store, items);
 
         // get items back
@@ -35,21 +31,12 @@ public class ShopperTest {
     @Test
     public void testMakeShoppingListWithRepeats() {
         Store store = new Store();
-        List<Item> items = null;
-
-        Item jelly = null;
-        Item pb = null;
-        Item twoPb = null;
-        try {
-            jelly = new Item("Jelly", 5.99, 1, "jar");
-            pb = new Item("Peanut Butter", 5.99, 1, "jar");
-            items = Arrays.asList(
-                    jelly, pb, pb
-            );
-            twoPb = new Item(pb.getName(), pb.getPrice(), 2, pb.getUnits());
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item jelly = new Item("Jelly", 5.99, 1, "jar");
+        Item pb = new Item("Peanut Butter", 5.99, 1, "jar");
+        List<Item> items = Arrays.asList(
+                jelly, pb, pb
+        );
+        Item twoPb = new Item(pb.getName(), pb.getPrice(), 2, pb.getUnits());
         Shopper shopper = new Shopper(store, items);
 
         // get items back

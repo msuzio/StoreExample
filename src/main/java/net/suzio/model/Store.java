@@ -131,8 +131,8 @@ public class Store {
                     stock.put(itemName, stockItem);
                 }
             } // else returnedItem stays null
-        } catch (InvalidItemException e) {
-            // should not happen
+        } catch (Exception e) {
+            // should not happen; if we attach a Logger, log out to that, not standard out
         } finally {
             wLock.unlock();
         }

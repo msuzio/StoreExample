@@ -21,15 +21,11 @@ public class ShoppingProcessTests {
     public void testWillNotWait() {
         Store store = new Store();
 
-        List<Item> items = null;
-        try {
-            items = Arrays.asList(
+        List<Item> items = Arrays.asList(
                     new Item("Peanut Butter", 5.99, 1, "jar"),
                     new Item("Jelly", 5.99, 1, "jar")
             );
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+
 
         // We expect Store not to let us in (StoreTest tests that at lower level),
         // so if we won't wait we don't shop.
@@ -48,15 +44,11 @@ public class ShoppingProcessTests {
     public void testShopGetsAllItemsExactly() {
         Store store = new Store();
 
-        List<Item> items = null;
-        try {
-            items = Arrays.asList(
+        List<Item> items = Arrays.asList(
                     new Item("Peanut Butter", 5.99, 1, "jar"),
                     new Item("Jelly", 5.99, 1, "jar")
             );
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+
         items.forEach(store::addItem);
         store.open();
         Shopper shopper = new Shopper(store, items);
@@ -91,14 +83,8 @@ public class ShoppingProcessTests {
         Store store = new Store();
 
         List<Item> items;
-        Item pb = null;
-        Item unknown = null;
-        try {
-            pb = new Item("Peanut Butter", 5.99, 1, "jar");
-            unknown = new Item("Unknown", 5.99, 1, "jar");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item pb = new Item("Peanut Butter", 5.99, 1, "jar");
+        Item unknown = new Item("Unknown", 5.99, 1, "jar");
         items = Arrays.asList(
                 pb,
                 unknown

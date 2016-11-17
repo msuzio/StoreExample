@@ -31,14 +31,25 @@ Implementing skeleton of Store/Shopper interactions
  ~~* Modifies shopping list to remove Items and quantity it actually managed to buy (we assume checkout completes successfully right now)~~
  ~~* Can report what Items it did not find from list.~~
  
-## Backlog
+## Iteration 4:
+### Focus
+
+Correcting bad design points and poor structure
+
+~~* Item should not throw an Exception in the constructor.
+   * This mis-feature is spread out smongst the code base.  Touch all areas as needed.~~
+   
+## Iteration Five
+### Focus
  
- * Move all existing packages to *net.suzio.store* package root; This is a big change, so deferred until Git commit won't be so massive right now and confuse readers
- * Consider if all Item list operations should really be consistently Maps rather than implicit folding of quantities 
+ Correct package structure
+ 
+ * Move all net.suzio.* packages to net.suzio.store.*
+ 
+## Backlog
  * Register implementation and checkout with Receipt.
-    * Implies we also have a supervisor submittng Shoppers to a pool of Registers
- * Revisit exception throwing in Item constructor; what are consequences of invalid Items?
-    * This is another big refactor --make it one commitall its own
+     * Implies we also have a method of submitting Shoppers to a pool of Registers
+ * Consider if all Item list operations should really be consistently Maps rather than implicit folding of quantities 
  * Shoppers should exit the store so Store.close() really knows it can complete close operation
     * This implies a"closing" state
  * Add logging (split into multiple stories as needed)
@@ -46,6 +57,8 @@ Implementing skeleton of Store/Shopper interactions
     * methods should be suitable for any datasource, mirorring CRUD focus
     * Start with simple version of this Service/Repository, even possibly just a move of logic from Store keeping existing in-memory map
  * All Producer/Consumer logic remains undone (in favor of getting code committed now)
-  * Shopper should be Runnable
+  * Shopper should be Runnable, and waiting case should really wait (wait()/notify()?) 
+  * Store should empty waiting Shopper queue on opening, and signal waiting threads to continue
+  * Registers keep a thread-safe queue of Shoppers, and dequeue as needed.
   
   

@@ -6,7 +6,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CartTest {
 
@@ -19,18 +20,20 @@ public class CartTest {
         Cart cart = new Cart();
 
         Set<Item> itemsToAdd = new HashSet<>();
-        try {
             itemsToAdd.add(new Item("Bananas", 0.99, 1, "LB"));
             itemsToAdd.add(new Item("Almonds", 5.99, 4, "jar"));
             itemsToAdd.add(new Item("Orange Juice", 2.99, 1, "Gallon"));
-        } catch (InvalidItemException e) {
-            fail("Error in test case -- created an invalid Item: " + e.getMessage());
-        }
+
 
         for (Item item : itemsToAdd) {
             cart.addItem(item);
         }
 
         List<Item> cartItems = cart.getItems();
+        assertEquals("Cart list retrieved from cart does not have correct nymber of elements", itemsToAdd.size(), cartItems.size());
+
+        // elegance of lambda is a bit lost here.
+        cartItems.forEach(i ->
+                assertTrue("Item" + i + " + was never added to Cart, but was present in list returned from it", itemsToAdd.contains(i)));
     }
 }

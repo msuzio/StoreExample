@@ -1,8 +1,5 @@
 package net.suzio.model;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * Models an Item in a store inventory.
  * Item objects may only be created via the public constructor, and are immutable by design
@@ -16,10 +13,7 @@ public class Item {
     private int quantity;
     private String units;
 
-    // Precompile to reduce overhead
-    // Safe to use in multiple threads; the matcher from this is not
-    // Can't just use \w, that would match something like "____"
-    private static final Pattern CONTAINS_AlPHA_NUMERIC = Pattern.compile("[A-Za-z0-9]+");
+
 
     // for internal use
     private Item() {
@@ -27,40 +21,20 @@ public class Item {
     }
 
     /**
-     * Constructor.Once created, instances are immutable
+     * Constructor. Once created, instances are immutable. Item data is not validated; data should be sanity checked in proper contexts.
      *
      * @param name     Name of item
      * @param price    Price per unit of item
      * @param quantity number of units of the Item in question.
      * @param units    Description of unit measure; purely informative
-     * @throws InvalidItemException error if item information is invalid
      */
-    public Item(String name, double price, int quantity, String units) throws InvalidItemException {
+    public Item(String name, double price, int quantity, String units) {
         super();
-        if (!validateString(name)) {
-            throw new InvalidItemException("Name '" + "' is not valid (must have at least one alphanumeric character)");
-        }
         this.name = name;
         // note that zero is a legitimate price (freebies!)
-        if (price < 0) {
-            throw new InvalidItemException("Price cannot be negative");
-        }
         this.price = price;
         this.quantity = quantity;
-        if (!validateString(units)) {
-            throw new InvalidItemException("units '" + "' are not valid (must have at least one alphanumeric character)");
-        }
         this.units = units;
-    }
-
-    private boolean validateString(String value) {
-        value = value != null ? value.trim() : null;
-        return (value != null) && (!value.isEmpty()) && matchesAlphaNumeric(value);
-    }
-
-    private boolean matchesAlphaNumeric(String value) {
-        Matcher m = CONTAINS_AlPHA_NUMERIC.matcher(value);
-        return m.find();
     }
 
     // Currently no setters; it is assumed we would prefer nothing in our application mutate an Item directly

@@ -17,16 +17,8 @@ public class ItemMergeTests {
         final String bananas = "Bananas";
         final String grapes = "Grapes";
 
-        // different names fails
-        Item oneBanana = null;
-        Item grapeItem = null;
-
-        try {
-            oneBanana = new Item(bananas, 0.99, 1, "LB");
-            grapeItem = new Item(grapes, 2.99, 1, "LB");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item oneBanana = new Item(bananas, 0.99, 1, "LB");
+        Item grapeItem = new Item(grapes, 2.99, 1, "LB");
 
         // Merging with different names returns original Item untouched
         final Item result = Item.merge(oneBanana, grapeItem);
@@ -36,14 +28,8 @@ public class ItemMergeTests {
     @Test
     public void testMergePrice() {
         // change price
-        Item almonds = null;
-        Item increasePrice = null;
-        try {
-            almonds = new Item("almonds", 4.99, 1, "jar");
-            increasePrice = new Item("almonds", 10.99, 0, "jar");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item almonds = new Item("almonds", 4.99, 1, "jar");
+        Item increasePrice = new Item("almonds", 10.99, 0, "jar");
 
         final Item repriced = Item.merge(almonds, increasePrice);
         assertNotNull(repriced);
@@ -51,7 +37,6 @@ public class ItemMergeTests {
         assertEquals("Updated Item has wrong units ", almonds.getUnits(), repriced.getUnits());
         assertEquals("Updated Item has wrong price", 10.99, repriced.getPrice(), 0.0);
         assertEquals("Updated Item has wrong quantity", 1, repriced.getQuantity());
-
     }
 
 
@@ -59,19 +44,11 @@ public class ItemMergeTests {
     public void testMergeQuantity() {
         // Test merging identical items and assert we now have one item with a quantity of 2
         final String bananas = "Bananas";
-        Item oneBanana = null;
-        Item noBanana = null;
-        Item anotherBanana = null;
-        Item sameBanana;
 
         // set up bananas
-        try {
-            oneBanana = new Item(bananas, 0.99, 1, "LB");
-            noBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), 0, oneBanana.getUnits());
-            anotherBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), 1, oneBanana.getUnits());
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item oneBanana = new Item(bananas, 0.99, 1, "LB");
+        Item noBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), 0, oneBanana.getUnits());
+        Item anotherBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), 1, oneBanana.getUnits());
 
         // nothing added
         final Item noChange = Item.merge(oneBanana, noBanana);
@@ -92,8 +69,7 @@ public class ItemMergeTests {
         assertEquals("Updated Item has wrong quantity", 2, twoBanana.getQuantity());
 
         // merge with itself -- expect identical results as above (but different object references)
-        sameBanana = oneBanana;
-        final Item doubleBanana = Item.merge(oneBanana, sameBanana);
+        final Item doubleBanana = Item.merge(oneBanana, oneBanana);
 
         assertEquals("Updated Item has wrong name ", oneBanana.getName(), doubleBanana.getName());
         assertEquals("Updated Item has wrong units ", oneBanana.getUnits(), doubleBanana.getUnits());
@@ -110,17 +86,10 @@ public class ItemMergeTests {
     public void testMergeNegativeQuantity() {
         // take away quantities
         // set up milk
-        Item threeGallons = null;
-        Item takeTwoGallons = null;
-        Item takeFourGallons = null;
+        Item threeGallons = new Item("milk", 2.99, 3, "Gallon");
+        Item takeTwoGallons = new Item("milk", 2.99, -2, "Gallon");
+        Item takeFourGallons = new Item("milk", 2.99, -4, "Gallon");
 
-        try {
-            threeGallons = new Item("milk", 2.99, 3, "Gallon");
-            takeTwoGallons = new Item("milk", 2.99, -2, "Gallon");
-            takeFourGallons = new Item("milk", 2.99, -4, "Gallon");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
         final Item nowOneGallon = Item.merge(threeGallons, takeTwoGallons);
         assertNotNull(nowOneGallon);
 
@@ -142,14 +111,9 @@ public class ItemMergeTests {
     @Test
     public void testMergeUnit() {
         // Change unit measure
-        Item bagOfGrapes = null;
-        Item lbOfgrapes = null;
-        try {
-            bagOfGrapes = new Item("grapes", 5.99, 1, "bag");
-            lbOfgrapes = new Item("grapes", 2.99, 0, "LB");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item bagOfGrapes = new Item("grapes", 5.99, 1, "bag");
+        Item lbOfgrapes = new Item("grapes", 2.99, 0, "LB");
+
 
         Item newUnits = Item.merge(bagOfGrapes, lbOfgrapes);
         assertNotNull(newUnits);

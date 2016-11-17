@@ -111,12 +111,8 @@ public class Shopper { //implements Runnable {
                 Item takenItem = store.takeItem(i.getName(), i.getQuantity());
                 if (takenItem != null) {
                     cart.addItem(takenItem);
-                    Item decrement = null;
-                    try {
-                        decrement = new Item(takenItem.getName(), takenItem.getPrice(), takenItem.getQuantity() * -1, takenItem.getUnits());
-                    } catch (InvalidItemException e) {
-                        //TODO -- FORGET IT, WE'RE NOT GOING TO THROW EXCEPTIONS ANYMORE
-                    }
+                    Item decrement = new Item(takenItem.getName(), takenItem.getPrice(), takenItem.getQuantity() * -1, takenItem.getUnits());
+
                     // this merge will effectively decrement our shopping list
                     Item listResult = Item.merge(i, decrement);
                     shoppingMap.put(i.getName(), listResult);

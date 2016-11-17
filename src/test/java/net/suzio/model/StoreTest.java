@@ -61,12 +61,8 @@ public class StoreTest {
         Store store;
 
         // Setup our Items
-        Item oneBanana = null;
-        try {
-            oneBanana = new Item(BANANAS, 0.99, 1, "LB");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item oneBanana = new Item(BANANAS, 0.99, 1, "LB");
+
         store = new Store();
         // add a single Item to the Store and we expect the exact same (immutable) Item back
         Item stockedItem = store.addItem(oneBanana);
@@ -76,12 +72,7 @@ public class StoreTest {
     @Test
     public void testAddItemTwice() {
         // Setup our Items
-        Item oneBanana = null;
-        try {
-            oneBanana = new Item(BANANAS, 0.99, 1, "LB");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item oneBanana = new Item(BANANAS, 0.99, 1, "LB");
 
         // The rest of the logic consists of correct behavior of Item.merge.  We'll test a known case where that works,
         // and one where it fails and not explore more cases
@@ -106,14 +97,9 @@ public class StoreTest {
     @Test
     public void testAddNegative() {
         // Setup our Items
-        Item oneBanana = null;
-        Item negativeQuantity = null;
-        try {
-            oneBanana = new Item(BANANAS, 0.99, 1, "LB");
-            negativeQuantity = new Item(BANANAS, 0.99, -1, "LB");
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+
+        Item oneBanana = new Item(BANANAS, 0.99, 1, "LB");
+        Item negativeQuantity = new Item(BANANAS, 0.99, -1, "LB");
 
         Store store = new Store();
         store.addItem(oneBanana);
@@ -130,13 +116,9 @@ public class StoreTest {
 
     @Test
     public void testTakeItem() {
-        Item threeGallons = null;
 
-        try {
-            threeGallons = new Item(MILK, 2.99, 3, GALLON);
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+        Item threeGallons = new Item(MILK, 2.99, 3, GALLON);
+
 
         // put an Item in the Store
         Store store = new Store();
@@ -163,13 +145,10 @@ public class StoreTest {
 
     @Test
     public void testTakeAll() {
-        Item threeGallons = null;
 
-        try {
-            threeGallons = new Item(MILK, 2.99, 3, GALLON);
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
+
+        Item threeGallons = new Item(MILK, 2.99, 3, GALLON);
+
 
         // put Item in the Store
         Store store = new Store();
@@ -199,14 +178,7 @@ public class StoreTest {
 
     @Test
     public void testTakeUnknown() {
-        Item threeGallons = null;
-
-        try {
-            threeGallons = new Item(MILK, 2.99, 3, GALLON);
-        } catch (InvalidItemException e) {
-            fail(TestUtil.ERROR_IN_TEST_CASE_INVALID_ITEM_CREATED + e.getMessage());
-        }
-
+        Item threeGallons = new Item(MILK, 2.99, 3, GALLON);
         // put Item in the Store
         Store store = new Store();
         store.addItem(threeGallons);
