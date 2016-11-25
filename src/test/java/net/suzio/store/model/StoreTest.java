@@ -30,7 +30,7 @@ public class StoreTest {
         Store store = new Store(lineLimit);
         int shopperNumber;
         for (shopperNumber = 0; shopperNumber < lineLimit; shopperNumber++) {
-            boolean allowed = store.addWaitingShopper(new Shopper(store, new ArrayList<>()));
+            boolean allowed = store.addWaitingShopper(new Shopper());
             assertTrue("Shopper" + shopperNumber + " not allowed in waiting line with set limit of " + lineLimit, allowed);
         }
 
@@ -44,11 +44,8 @@ public class StoreTest {
     public void testAcceptShopper() {
         Store store = new Store();
         boolean allowed;
-        Shopper shopper = new Shopper(store, new ArrayList<>());
+        Shopper shopper = new Shopper();
 
-        //TODO Eventually this model should be flipped and the Shopper calls this in the shop() method.
-        // The Shopper wants to enter the store; but our test case is OK
-        // for testing iin isolation so we won't change it until the Shopper shop() logic is set.
         allowed = store.enter(shopper);
         assertFalse("Shopper allowed into closed Store", allowed);
         store.open();
@@ -58,24 +55,22 @@ public class StoreTest {
 
     @Test
     public void testAddItemSingle() {
-        Store store;
+        Store store = new Store();
 
         // Setup our Items
         Item oneBanana = new Item(BANANAS, 0.99, 1, "LB");
 
-        store = new Store();
         // add a single Item to the Store and we expect the exact same (immutable) Item back
         Item stockedItem = store.addItem(oneBanana);
         assertSame(oneBanana, stockedItem);
     }
 
+    // The rest of the logic consists of correct behavior of Item.merge.  We'll test a known case where that works,
+    // and one where it fails and not explore more cases here
     @Test
     public void testAddItemTwice() {
         // Setup our Items
         Item oneBanana = new Item(BANANAS, 0.99, 1, "LB");
-
-        // The rest of the logic consists of correct behavior of Item.merge.  We'll test a known case where that works,
-        // and one where it fails and not explore more cases
 
         // start fresh
         // working case -- add same data twice and expect two of the same
@@ -102,6 +97,7 @@ public class StoreTest {
         Item negativeQuantity = new Item(BANANAS, 0.99, -1, "LB");
 
         Store store = new Store();
+
         store.addItem(oneBanana);
         final Item noBananas = store.addItem(negativeQuantity);
 
@@ -116,9 +112,7 @@ public class StoreTest {
 
     @Test
     public void testTakeItem() {
-
         Item threeGallons = new Item(MILK, 2.99, 3, GALLON);
-
 
         // put an Item in the Store
         Store store = new Store();
@@ -145,10 +139,7 @@ public class StoreTest {
 
     @Test
     public void testTakeAll() {
-
-
         Item threeGallons = new Item(MILK, 2.99, 3, GALLON);
-
 
         // put Item in the Store
         Store store = new Store();

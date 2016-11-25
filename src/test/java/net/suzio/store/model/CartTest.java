@@ -16,21 +16,19 @@ public class CartTest {
      * Assert that if we add Items to the cart, we can get them back (insertion order doesn't matter)
      */
     @Test
-    public void testCartAddandFetchReciprocal() {
+    public void testCartAddAndFetchReciprocal() {
         Cart cart = new Cart();
 
         Set<Item> itemsToAdd = new HashSet<>();
-            itemsToAdd.add(new Item("Bananas", 0.99, 1, "LB"));
-            itemsToAdd.add(new Item("Almonds", 5.99, 4, "jar"));
-            itemsToAdd.add(new Item("Orange Juice", 2.99, 1, "Gallon"));
+        itemsToAdd.add(new Item("Bananas", 0.99, 1, "LB"));
+        itemsToAdd.add(new Item("Almonds", 5.99, 4, "jar"));
+        itemsToAdd.add(new Item("Orange Juice", 2.99, 1, "Gallon"));
 
 
-        for (Item item : itemsToAdd) {
-            cart.addItem(item);
-        }
+        itemsToAdd.forEach(cart::addItem);
 
         List<Item> cartItems = cart.getItems();
-        assertEquals("Cart list retrieved from cart does not have correct nymber of elements", itemsToAdd.size(), cartItems.size());
+        assertEquals("Cart list retrieved from cart does not have correct number of elements", itemsToAdd.size(), cartItems.size());
 
         // elegance of lambda is a bit lost here.
         cartItems.forEach(i ->

@@ -3,6 +3,7 @@ package net.suzio.store.model;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -29,7 +30,18 @@ public class ShopperTest {
     }
 
     @Test
+    public void testEmptyShoppingList() {
+        // This ran insanely slow with a Mockito mock; this is actually simpler
+        Store store = new Store();
+        store.open();
+        Shopper shopper = new Shopper(store, Collections.emptyList());
+        final List<Item> shoppingList = shopper.getShoppingList();
+        assertTrue("shopping List should be empty list", shoppingList.isEmpty());
+    }
+
+    @Test
     public void testMakeShoppingListWithRepeats() {
+        //TODO - mock Store
         Store store = new Store();
         Item jelly = new Item("Jelly", 5.99, 1, "jar");
         Item pb = new Item("Peanut Butter", 5.99, 1, "jar");

@@ -24,6 +24,7 @@ public class ItemTest {
      * naive assumption to start -- look at all fields, ensure there is no Bean type method corresponding to them.
 	 * This keeps a robust test that will serve to warn us if we might stray from our contract.
 	 */
+        // Hamcrest hasProperty assertion almost does what we want, but not quite
         Field[] fields = clazz.getDeclaredFields();
         Method[] methods = clazz.getDeclaredMethods();
         Set<String> methodNames = Stream.of(methods)

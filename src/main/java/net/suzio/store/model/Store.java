@@ -35,7 +35,7 @@ public class Store {
      */
     public Store() {
         // infinite waiting line
-        waitingShoppers = new LinkedBlockingQueue<>();
+        this(0);
     }
 
     /**
@@ -44,8 +44,11 @@ public class Store {
      * @param waitSize limit on number of Shoppers that can be in waiting line
      */
     public Store(int waitSize) {
-        this();
-        waitingShoppers = new LinkedBlockingQueue<>(waitSize);
+        if (waitSize > 0) {
+            waitingShoppers = new LinkedBlockingQueue<>(waitSize);
+        } else {
+            waitingShoppers = new LinkedBlockingQueue<>();
+        }
     }
 
     // Stock management operations
@@ -102,7 +105,7 @@ public class Store {
     }
 
     /**
-     * Request an Item fom the Store stock by name, and record decremented quantity
+     * Request an Item from the Store stock by name, and record decremented quantity
      *
      * @param itemName          Name of Item to take from stock
      * @param requestedQuantity units of Item to take
@@ -155,16 +158,17 @@ public class Store {
     /**
      * lets a Shopper attempt to enter the store
      *
-     * todo - can this be removed? Intent was originally to have te Store determine if the Shopper should go into waiting line.
+     * TODO -- BETTER TO MERGE THIS WITH THE ADDITION OF A SHOPPER TO THE WAIT LINE
+     *
      * @param shopper A Shopper attempting to enter the Store and shop.
-     * @return true if the Shopper was accepted (always accepted if open, rejected if closed).
+     * @return true if the Shopper was accepted
      */
     public boolean enter(Shopper shopper) {
         return isOpen();
     }
 
     /**
-     * Adds shopper to waiting list. Rejects immediately if the number of waiting shoppers has been reached.
+     * Adds shopper to waiting list. Rejects immediately if the maximum number of waiting shoppers has been reached.
      *
      * @param shopper Shopper that wants to wait in line
      * @return true if shopper is allowed to wait, false if waiting line exceeds limit

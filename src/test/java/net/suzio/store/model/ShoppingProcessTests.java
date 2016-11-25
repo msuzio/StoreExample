@@ -22,9 +22,9 @@ public class ShoppingProcessTests {
         Store store = new Store();
 
         List<Item> items = Arrays.asList(
-                    new Item("Peanut Butter", 5.99, 1, "jar"),
-                    new Item("Jelly", 5.99, 1, "jar")
-            );
+                new Item("Peanut Butter", 5.99, 1, "jar"),
+                new Item("Jelly", 5.99, 1, "jar")
+        );
 
 
         // We expect Store not to let us in (StoreTest tests that at lower level),
@@ -45,9 +45,9 @@ public class ShoppingProcessTests {
         Store store = new Store();
 
         List<Item> items = Arrays.asList(
-                    new Item("Peanut Butter", 5.99, 1, "jar"),
-                    new Item("Jelly", 5.99, 1, "jar")
-            );
+                new Item("Peanut Butter", 5.99, 1, "jar"),
+                new Item("Jelly", 5.99, 1, "jar")
+        );
 
         items.forEach(store::addItem);
         store.open();

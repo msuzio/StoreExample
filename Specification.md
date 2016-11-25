@@ -16,8 +16,8 @@ This module models a store with items,Shoppers,registers (checkout lanes) and re
 ## Shopper behavior
 * Shoppers desire to enter a Store and shop.  They cannot enter a closed store.
 * A Shopper can (optionally) wait if a Store is closed. This request may be refused if the Store desires to limit the size of the waitline.
-* A Shopper that is refused entry and does not (or is refused permission to) enter a wait line must termnate the shopping attempt.
-* Shoppers have a list of desired Items and qunatities thereof.
+* A Shopper that is refused entry and does not (or is refused permission to) enter a wait line must terminate the shopping attempt.
+* Shoppers have a list of desired Items and quantities thereof.
    * Shoppers attempt to purchase all the Items on their shopping list.
    * Their behavior when an Item is not in stock with a desired quantity should not be assumed 
 * After checkout, a Shopper is expected to have an empty Cart and a shopping list with any purchased Items removed or decremented
@@ -36,13 +36,13 @@ This module models a store with items,Shoppers,registers (checkout lanes) and re
 ### Registers and Checkout
 * A Store contains multiple Registers
 * Registers service a line of Shoppers (a queue).
-   * Assignment of Customers to a Register is not specified, ***except*** Shoppers will not leave a Register queue once in.
+   * Assignment of Shoppers to a Register is not specified, ***except*** Shoppers will not leave a Register queue once in.
 * Registers control the Shopper checkout process
-* Checkout is an uninterruptible process; if the process is interrupted, the state of the Store is undefined
+* Checkout is an uninterruptible process; if the process is interrupted, the state of the Store and the Shopper are undefined
 * steps of checkout:
-    * The Register looks up Items from the Shopper's cart iteratively, but not necessarily in any defined ordering
-    * Price information about the Item is obtained from the Store; thus,we alwys are getting the latest units and (especially) price
-    * quantity information in the Item is not significant to the Register; the Cart addition process accounted for that, and restocking doesn't matter
+    * The Register looks up Items from the Shopper's cart iteratively, but not necessarily in any expected defined ordering
+    * All Item information from the Cart is taken as correct; price changes or unit changes made to the Store stock after placement in the Cart are not seen by the Register
+    * __The above may not be realistic, but the edge cases severely complicate matters and handling them is unclear__
 * At the end of checkout, the Register returns a Receipt the Shopper should retain
 
 ### Receipt
