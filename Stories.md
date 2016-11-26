@@ -89,12 +89,25 @@ Convert Shopper to fit updated design
 
 ~~* shopping steps go in correct order~~
    ~~* _shop_~~
-   * _checkout_
-   * _exit_
+   * ~~_checkout_~~
+   * ~~_exit_~~
 * ~~stub out code relevant to running in a multithreaded context~~
 *~~execute correctly in a single-threaded context~~
 * ~~Store logic changes to suit this and allow unit tests to run, but no more than that~~
    * ~~Store need not track known Shoppers yet~~
+
+## Iteration Nine
+
+### Focus
+
+Convert Store and Register to fit updated design
+
+* Link Registers to Store, closing the total Shopping loop
+* Register checkout calls Shopper exit logic
+* Store tracks active shoppers
+   * Adds them when they start shopping
+   * Removes them when they exit 
+* All components must still be able to execute in single-threaded mode for testing.
 
  
 ## Backlog / Discussion points
