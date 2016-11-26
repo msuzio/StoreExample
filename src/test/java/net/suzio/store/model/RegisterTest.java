@@ -33,7 +33,7 @@ public class RegisterTest {
             Shopper shopper = new Shopper();
             assertTrue("Register line refused entry by Shopper #: " + i + "while under expected line limit", register.addWaitingShopper(shopper));
         }
-        Shopper overLimitShopper = new Shopper();
+        @SuppressWarnings("unused") Shopper overLimitShopper = new Shopper();
         assertEquals("Full register line reports unexpected capacity ", maxShoppers, register.getWaitingCount());
         assertEquals("Full wait line still reports remaining capacity", register.getRemainingWaitLimit(), 0);
     }
@@ -42,7 +42,7 @@ public class RegisterTest {
     public void testCheckout() {
         RegisterService service = new RegisterService();
         service.addRegister(new Register());
-        Shopper shopper = new Shopper(new Store(), Collections.EMPTY_LIST);
+        Shopper shopper = new Shopper(new Store(), Collections.emptyList());
         service.addShopperToRegister(shopper);
     }
 }

@@ -3,6 +3,7 @@ package net.suzio.store.model;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -30,12 +31,12 @@ public class StoreTest {
         Store store = new Store(lineLimit);
         int shopperNumber;
         for (shopperNumber = 0; shopperNumber < lineLimit; shopperNumber++) {
-            boolean allowed = store.addWaitingShopper(new Shopper());
+            boolean allowed = store.startShopper(new Shopper(store, Collections.emptyList(), true));
             assertTrue("Shopper" + shopperNumber + " not allowed in waiting line with set limit of " + lineLimit, allowed);
         }
 
         // reached our limit, should refuse Shopper
-        boolean shouldNotBeAllowed = store.addWaitingShopper(new Shopper(store, new ArrayList<>()));
+        boolean shouldNotBeAllowed = store.startShopper(new Shopper(store, new ArrayList<>()));
         assertFalse("Shopper " + shopperNumber + "allowed in past set Store wait limit of" + lineLimit, shouldNotBeAllowed);
 
     }
@@ -46,10 +47,10 @@ public class StoreTest {
         boolean allowed;
         Shopper shopper = new Shopper();
 
-        allowed = store.enter(shopper);
+        allowed = store.startShopper(shopper);
         assertFalse("Shopper allowed into closed Store", allowed);
         store.open();
-        allowed = store.enter(shopper);
+        allowed = store.startShopper(shopper);
         assertTrue("Shopper refused entry into open Store", allowed);
     }
 

@@ -1,6 +1,8 @@
 package net.suzio.store.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
@@ -12,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * <p>
  * Created by Michael on 11/12/2016.
  */
+@SuppressWarnings("WeakerAccess")
 public class Store {
 
     // Just using volatile probably isn't good enough
@@ -62,9 +65,7 @@ public class Store {
      */
     public Item addItem(Item item) {
         Lock wLock = stockLock.writeLock();
-        // this really should always be initialized somewhere below; if we mess that up,
-        // unit tests should catch that and fail
-        Item stockItem = null;
+        Item stockItem;
 
         wLock.lock();
         try {
@@ -94,7 +95,7 @@ public class Store {
      */
     public Item queryItem(String name) {
         Lock rLock = stockLock.readLock();
-        Item item = null;
+        Item item;
         rLock.lock();
         try {
             item = stock.get(name);
@@ -147,34 +148,35 @@ public class Store {
 
     /**
      * Open the Store
+     *
+     * TODO -- this is not thread-safe; wrap all this logic in a tight run loop that can deque Shoppers as needed once it is open or just let them pass once open and stop using queue then
      */
     public void open() {
         open.set(true);
-
-        // Later on we should drain our waiting queue
-        // and notify waiting Shoppers
+        List<Shopper> shoppers = new ArrayList<>(waitingShoppers.size());
+        waitingShoppers.drainTo(shoppers);
+        shoppers.forEach(Shopper::allowShop);
     }
 
     /**
-     * lets a Shopper attempt to enter the store
+     * Let a Shopper start the shopping process.
+     * If the store is open, they are accepted immediately
+     * If the store is closed, they may choose to wait, in which case they enter the Stores waiting queue.
+     * Either way, this method returns immediately.
      *
-     * TODO -- BETTER TO MERGE THIS WITH THE ADDITION OF A SHOPPER TO THE WAIT LINE
+     * TODO --  as with open(), modify to work with a tight run() loop
      *
-     * @param shopper A Shopper attempting to enter the Store and shop.
-     * @return true if the Shopper was accepted
+     * @param shopper Shopper wanting to shop in this Store
+     * @return true if the Shopper was accepted (possibly in a wait state), false if it was not (chose not to wait or wait line is full)
      */
-    public boolean enter(Shopper shopper) {
-        return isOpen();
-    }
-
-    /**
-     * Adds shopper to waiting list. Rejects immediately if the maximum number of waiting shoppers has been reached.
-     *
-     * @param shopper Shopper that wants to wait in line
-     * @return true if shopper is allowed to wait, false if waiting line exceeds limit
-     */
-    public boolean addWaitingShopper(Shopper shopper) {
-        return waitingShoppers.offer(shopper);
+    public boolean startShopper(Shopper shopper) {
+        if (isOpen()) {
+            shopper.allowShop();
+            return true;
+        } else if (shopper.isWaitable()) {
+            return waitingShoppers.offer(shopper);
+        }
+        return false;
     }
 
     /**
@@ -189,10 +191,20 @@ public class Store {
     /**
      * determines if the store is closed
      *
-     * @return true if olosed
+     * @return true if closed
      */
     public boolean isClosed() {
         // just be reflexive for now is case open state gets more complex -- delegate to that to decide overall state
         return !isOpen();
+    }
+
+    @SuppressWarnings("unused")
+    public void checkoutShopper(Shopper shopper) {
+        // do nothing right now -- should be hooked up to a collection of Registers
+    }
+
+    @SuppressWarnings("unused")
+    public void exitShopper(Shopper shopper) {
+        // do nothing right now -- eventually it will clear this Shopper from an active list
     }
 }

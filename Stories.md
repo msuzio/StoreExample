@@ -78,7 +78,7 @@ Git commit was severly delayed by lone developer having Thanksgiving week off.
 Design and documentation
 
 * ~~Update Dataflow document with textual dissection of the moving parts.~~
- * Add Stories from Backlog to target Iteration Eight in a coherent manner
+ ~~* Add Stories from Backlog to target Iteration Eight in a coherent manner~~
 * __NO__ code changes
 
 ## Iteration Eight
@@ -87,14 +87,14 @@ Design and documentation
 
 Convert Shopper to fit updated design
 
-* shopping steps go in correct order
-   * _enter_
-   * _shop_
+~~* shopping steps go in correct order~~
+   ~~* _shop_~~
+   * _checkout_
    * _exit_
-* will wait at each step if running in a multithreaded context
-* execute correctly in a single-threaded context
-* Store logic changes to suit this and allow unit tests to run, but no more than that
-   * Store need not track known Shoppers yet
+* ~~stub out code relevant to running in a multithreaded context~~
+*~~execute correctly in a single-threaded context~~
+* ~~Store logic changes to suit this and allow unit tests to run, but no more than that~~
+   * ~~Store need not track known Shoppers yet~~
 
  
 ## Backlog / Discussion points

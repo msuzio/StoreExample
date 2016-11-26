@@ -5,6 +5,7 @@ import net.suzio.store.model.util.ItemUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Model a Shopper that performs a shopping task
@@ -19,6 +20,76 @@ public class Shopper { // implements Runnable (not yet) {
     private Cart cart = new Cart();
     private Receipt receipt;
 
+    // CONCURRENCY BARRIER -- don't need CyclicBarrier reset functionality
+    // wait/notify might suffice, since no matter what we need another thread to signal us
+    // Not sure if there's performance implications of this -- would be sa good StackOverflow question?
+    private CountDownLatch shoppingBarrier;
+
+    /**
+     * Perform the steps of shopping throughout a Store
+     * This method should be able to execute in a multi-threaded context
+     */
+    public void shop() {
+        if (store != null) {
+            // Won't return until shopping is done
+            doShopping();
+            // In which case we can checkout, then leave -- checkout step returns (relatively) immediately,
+            // but then our call to exit() blocks until an outside process allows execution
+            checkout();
+            // exit();
+        }
+    }
+
+    private void checkout() {
+        store.checkoutShopper(this);
+    }
+
+    public void allowShop() {
+        // flip barrier blocking shopping -- currently nothing waits on that, but this is the logic
+        //shoppingBarrier.countDown();
+    }
+
+    public void allowExit() {
+        // flip barrier blocking exit -- currently nothing waits on that, but this is the logic
+        //exitBarrier.countDown();
+    }
+
+    private void exit() {
+        // exitBarrier.wait()
+        store.exitShopper(this);
+    }
+
+    public void doShopping() {
+        shoppingBarrier = new CountDownLatch(1);
+        final boolean canShop = store.startShopper(this);
+        // We will do this for each Item in our shopping List:
+        // -- try to take the Item from the Store
+        // -- merge results with our desired quantity
+        // -- put merged result back into our shopping list
+        // -- put taken amount into Cart
+        if (canShop) {
+//            //TODO -- MT
+//            try {
+//                shoppingBarrier.await();
+//            } catch (InterruptedException e) {
+//                // TODO -- ANY IMPLICATIONS OF THIS HAPPENING?
+//                  //consider that if we push shopping code inside try/catch, we are still in a
+//                  //possible inconsistent state. I see no good answer right now, but this shouldn't be dismissed
+//            }
+            shoppingMap.values().forEach(i -> {
+                Item takenItem = store.takeItem(i.getName(), i.getQuantity());
+                if (takenItem != null) {
+                    cart.addItem(takenItem);
+                    Item decrement = new Item(takenItem.getName(), takenItem.getPrice(),
+                            takenItem.getQuantity() * -1, takenItem.getUnits());
+
+                    // this merge will effectively decrement our shopping list
+                    Item listResult = Item.merge(i, decrement);
+                    shoppingMap.put(i.getName(), listResult);
+                } // Null case just means store didn't have our Item at all
+            });
+        }
+    }
 
     // Accept a List in our constructors simply because that is more direct to our intent and easier to construct inside our tests;
     // I think it's irrelevant that our internal model uses a HashMap
@@ -86,56 +157,6 @@ public class Shopper { // implements Runnable (not yet) {
      */
     protected Cart getCart() {
         return cart;
-    }
-
-    /**
-     * Perform the steps of shopping throughout a Store
-     * This method should be able to execute in a multi-threaded context
-     */
-    public void shop() {
-        // try to enter;
-        if (store != null) {
-            final boolean allowedEntrance = store.enter(this);
-            if (allowedEntrance) {
-
-                // Defer all actual multi-threaded behaviors of this class itself, although data structures must be thread-safe
-//            if (waitable) {
-//                store.addWaitingShopper(this);
-//                // eventually we want to block until we get to go into Store
-//                // consider how this affects case of Store never opening
-//                try {
-//                    Thread.currentThread().wait();
-//                } catch (InterruptedException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-
-                // We will do this for each Item in our shopping List:
-                // -- try to take the Item from the Store
-                // -- merge results with our desired quantity
-                // -- put merged result back into our shopping list
-                // -- put taken amount into Cart
-                shoppingMap.values().forEach(i -> {
-                    Item takenItem = store.takeItem(i.getName(), i.getQuantity());
-                    if (takenItem != null) {
-                        cart.addItem(takenItem);
-                        Item decrement = new Item(takenItem.getName(), takenItem.getPrice(),
-                                takenItem.getQuantity() * -1, takenItem.getUnits());
-
-                        // this merge will effectively decrement our shopping list
-                        Item listResult = Item.merge(i, decrement);
-                        shoppingMap.put(i.getName(), listResult);
-                    } // Null case just means store didn't have our Item at all
-                });
-
-                //  Get in line for a Register and checkout; if not, we won't get a Receipt (presumably
-                //  we'd be stopped if we tried to exit then without paying, but for now stick to the simple, testable state)
-
-                //  - explicitly exit store?
-
-                //  - end of shopping. shopping list now retains anything we could not get
-            }
-        }
     }
 
 
