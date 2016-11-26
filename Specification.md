@@ -6,21 +6,21 @@ This module models a store with items,Shoppers,registers (checkout lanes) and re
 ## Store
 ### Store states
 * A store may be open or closed.
-    * When a store is closed, arriving Shoppers who desire to wait may (optionally) queue up sequentially and are allowed inside in that order once the store opens. 
-    * An open Store always accepts Shoppers desiring to shop, bypassing any wait step.
-    * Shoppers perform their shopping steps in an undefined concurrent order
-    * A Store may be assumed to be of infinite size and able to accommodate as many Shoppers as desired once open
-* When an open store closes, all existing Shoppers (storewide) are allowed to checkout, but no new Shoppers are allowed in.
-    * an explicitly closed Store (one that close() is called on) should then refuse to queue up Shoppers so their shopping attempts fail.
+   * When a store is closed, arriving Shoppers who desire to wait may (optionally) queue up sequentially and are allowed inside in that order once the store opens. 
+   * An open Store always accepts Shoppers desiring to shop, bypassing any wait step.
+   * Shoppers perform their shopping steps in an undefined ~~~concurrent~~~ order
+   * A Store may be assumed to be of infinite size and able to accommodate as many Shoppers as desired once open
+   * When an open store closes, all existing Shoppers (storewide) are allowed to checkout, but no new Shoppers are allowed in.
+   * an explicitly closed Store (one that close() is called on) should then refuse to queue up Shoppers so their shopping attempts fail.
     
 ## Shopper behavior
 * Shoppers desire to enter a Store and shop.  They cannot enter a closed store.
 * A Shopper can (optionally) wait if a Store is closed. This request may be refused if the Store desires to limit the size of the waitline.
 * A Shopper that is refused entry and does not (or is refused permission to) enter a wait line must terminate the shopping attempt.
-* Shoppers have a list of desired Items and quantities thereof.
-   * Shoppers attempt to purchase all the Items on their shopping list.
-   * Their behavior when an Item is not in stock with a desired quantity should not be assumed 
-* After checkout, a Shopper is expected to have an empty Cart and a shopping list with any purchased Items removed or decremented
+* Shoppers have a list of desired items and quantities thereof.
+   * Shoppers attempt to purchase all the items on their shopping list.
+   * Their behavior when an item is not in stock with a desired quantity should not be assumed 
+* After checkout, a Shopper is expected to have an empty Cart and a shopping list with any purchased items removed or decremented
 
 
 ### Store stock
