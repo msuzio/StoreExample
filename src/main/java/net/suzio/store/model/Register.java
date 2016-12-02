@@ -58,7 +58,8 @@ public class Register {
     }
 
     /**
-     * @return number of Shoppers waiting. In a multithreaded context, this may change after querying, so this is just informational and #addShopper may still refuse requests
+     * @return number of Shoppers waiting. In a multithreaded context, this may change after querying, so this is just
+     * informational and #addShopper may still refuse requests
      */
     int getWaitingCount() {
         return waitingShoppers.size();

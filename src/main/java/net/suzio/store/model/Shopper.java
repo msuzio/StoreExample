@@ -36,7 +36,8 @@ public class Shopper { // implements Runnable (not yet) {
     }
 
     /**
-     * Create a Shopper to operate with an assigned Store.  waiting behavior defaults to not-waiting, and failing fast against a closed Store
+     * Create a Shopper to operate with an assigned Store.  waiting behavior defaults to not-waiting, and failing fast
+     * against a closed Store
      *
      * @param store    Store we operate on
      * @param itemList List of Items we want to buy
@@ -124,9 +125,11 @@ public class Shopper { // implements Runnable (not yet) {
     }
 
     /**
-     * Get our shopping list.  In general, this method should not be called while our shop() method is running, as results are indeterminant
+     * Get our shopping list.  In general, this method should not be called while our shop() method is running, as
+     * results are indeterminant
      *
-     * @return Copy of (immutable) shopping list Items. Multiple instances of a single Item will have been folded into a single Item
+     * @return Copy of (immutable) shopping list Items. Multiple instances of a single Item will have been folded into a
+     * single Item
      */
     protected List<Item> getShoppingList() {
 
@@ -140,10 +143,11 @@ public class Shopper { // implements Runnable (not yet) {
     }
 
     /**
-     * Get the cart the shopping process has filled
-     * Cautions of #getShoppingList apply, although calling this method as shop() executes simply means we will not get a view of the complete shopping run.
+     * Get the cart the shopping process has filled Cautions of #getShoppingList apply, although calling this method as
+     * shop() executes simply means we will not get a view of the complete shopping run.
      *
-     * @return Cart Shopper has put items into as shopping executed. Cart state should not be mutated by callers (@see Cart#addItem)
+     * @return Cart Shopper has put items into as shopping executed. Cart state should not be mutated by callers (@see
+     * Cart#addItem)
      */
     protected Cart getCart() {
         return cart;

@@ -32,6 +32,6 @@ public class CartTest {
 
         // elegance of lambda is a bit lost here.
         cartItems.forEach(i ->
-                assertTrue("Item" + i + " + was never added to Cart, but was present in list returned from it", itemsToAdd.contains(i)));
+                                  assertTrue("Item" + i + " + was never added to Cart, but was present in list returned from it", itemsToAdd.contains(i)));
     }
 }

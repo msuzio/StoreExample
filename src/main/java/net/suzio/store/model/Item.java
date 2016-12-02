@@ -1,9 +1,9 @@
 package net.suzio.store.model;
 
 /**
- * Models an Item in a store inventory.
- * Item objects may only be created via the public constructor, and are immutable by design
- * to maintain data integrity.  Use cases where a state change is required should be done through creation of a new Item.
+ * Models an Item in a store inventory. Item objects may only be created via the public constructor, and are immutable
+ * by design to maintain data integrity.  Use cases where a state change is required should be done through creation of
+ * a new Item.
  *
  * @author Michael Suzio
  */
@@ -20,7 +20,8 @@ public class Item {
     }
 
     /**
-     * Constructor. Once created, instances are immutable. Item data is not validated; data should be sanity checked in proper contexts.
+     * Constructor. Once created, instances are immutable. Item data is not validated; data should be sanity checked in
+     * proper contexts.
      *
      * @param name     Name of item
      * @param price    Price per unit of item
@@ -60,7 +61,8 @@ public class Item {
      *
      * @param into Item to merge properties into
      * @param from Item to merge properties from, overriding or modifying the properties of into.
-     * @return Merge a new set of data with this Item, returning a new Item..  If Item names do not match, returns into Item unchanged
+     * @return Merge a new set of data with this Item, returning a new Item..  If Item names do not match, returns into
+     * Item unchanged
      */
     public static Item merge(Item into, Item from) {
         if (into == null || from == null) {

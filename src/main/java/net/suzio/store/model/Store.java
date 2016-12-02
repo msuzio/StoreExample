@@ -230,6 +230,7 @@ public class Store {
 
     /**
      * Add a Register to the Store.
+     *
      * @param register Register to add to Store
      * @return register object if Register is successfully added; null otherwise
      */

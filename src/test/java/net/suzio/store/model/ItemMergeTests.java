@@ -7,8 +7,7 @@ import static org.junit.Assert.*;
 /**
  * Test cases for Iten.Merge() method; got too big to keep in ItemTest
  *
- * @see Item#merge(Item, Item)
- * Created by Michael on 11/16/2016.
+ * @see Item#merge(Item, Item) Created by Michael on 11/16/2016.
  */
 public class ItemMergeTests {
     @Test

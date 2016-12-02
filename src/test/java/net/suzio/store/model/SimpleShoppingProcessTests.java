@@ -57,7 +57,7 @@ public class SimpleShoppingProcessTests {
         assertNotNull(doneShoppingList);
         assertEquals("Shopping list on successful shopping run is of wrong size", items.size(), doneShoppingList.size());
         doneShoppingList.forEach(i ->
-                assertEquals("quantity of item on successful shopping run is wrong", 0, i.getQuantity()));
+                                         assertEquals("quantity of item on successful shopping run is wrong", 0, i.getQuantity()));
 
         Cart cart = shopper.getCart();
         List<Item> cartItems = cart.getItems();
@@ -70,9 +70,9 @@ public class SimpleShoppingProcessTests {
         Map<String, Item> itemsMap = ItemUtil.itemstoMap(items);
         Map<String, Item> cartItemsMap = ItemUtil.itemstoMap(cartItems);
         itemsMap.keySet().forEach(k -> {
-                    assertTrue("Cart does not contain expected Item name " + k, cartItemsMap.containsKey(k));
-                    assertTrue("Cart does not have expected Item ", itemsMap.get(k).equals(cartItemsMap.get(k)));
-                }
+                                      assertTrue("Cart does not contain expected Item name " + k, cartItemsMap.containsKey(k));
+                                      assertTrue("Cart does not have expected Item ", itemsMap.get(k).equals(cartItemsMap.get(k)));
+                                  }
         );
     }
 
