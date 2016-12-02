@@ -1,10 +1,7 @@
 package net.suzio.store.model;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -16,21 +13,25 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @SuppressWarnings("WeakerAccess")
 public class Store {
-
-    // Just using volatile probably isn't good enough
-    private AtomicBoolean open = new AtomicBoolean(false);
     // our waiting shoppers are always in a Queue
     private LinkedBlockingQueue<Shopper> waitingShoppers;
 
-    // Not sure if this is needed; remove until use case is clear
-    // private List<Shopper> activeShoppers = new ArrayList<>();
-
-    // use non-concurrent Map, and lock selectively.
-    // TODO -- benchmark this against ConcurrentHashMap
+    // use non-concurrent Maps, and lock selectively -- possible ConcurrentHashMap is better,
+    // but won't optimize just yet -- behavior of adding and removing Registers during run() loop
+    // seems to be more understandable with explicit locking right now
+    private HashMap<Integer, Register> registers = new HashMap<>();
+    private ReadWriteLock registerLock = new ReentrantReadWriteLock();
+    // As above, could this better be a ConcurrentHashMap?
     // TODO -- Move this into a Service rather than internal store? JPA or Spring Data storage would be closer to a real model, and separating this out paves the way
     private HashMap<String, Item> stock = new HashMap<>();
     private ReadWriteLock stockLock = new ReentrantReadWriteLock();
 
+    // control variables
+    private volatile boolean open;
+    private volatile boolean running = true;
+    private volatile boolean registerAdd = true;
+
+    // Constructors
 
     /**
      * Initialize a default Store
@@ -47,11 +48,91 @@ public class Store {
      * @param waitSize limit on number of Shoppers that can be in waiting line
      */
     public Store(int waitSize) {
+        super();
         if (waitSize > 0) {
             waitingShoppers = new LinkedBlockingQueue<>(waitSize);
         } else {
             waitingShoppers = new LinkedBlockingQueue<>();
         }
+    }
+    // end of constructors
+
+    // Store main loop
+    public void run() {
+        // should loop around a running state
+        //while(running) {
+        // take any waiting Shoppers and let them proceed; don't wait on entrance of new Shoppers,
+        // since we'll catch them next time around
+        Shopper waiting;
+        while ((waiting = waitingShoppers.poll()) != null) {
+            waiting.allowShop();
+        }
+
+        // run each Register's checkout logic --
+        // if a Register is added or removed outside this loop, we either get it next
+        // time or handle it if we close before then
+        Lock rLock = registerLock.readLock();
+        rLock.lock();
+        try {
+            Collection<Register> runningRegisters = registers.values();
+            runningRegisters.forEach(Register::checkoutNext);
+        } finally {
+            rLock.unlock();
+        }
+        //}
+
+        // no longer running main loop -- perform closing actions
+        // no more Shoppers allowed in
+        open = false;
+        // no more Registers added. If between now and lock acquisition below a Register gets removed by another thread,
+        // it will still checkout its line of Shoppers just as we do below.
+        registerAdd = false;
+
+        // clear Register pool and checkout the shoppers in each
+        // lock and don't let go until we've processed all Registers.  Only this thread should be allowed to change the Registers now
+        Lock wLock = registerLock.writeLock();
+        wLock.lock();
+        try {
+            // Have to capture keys in a new set then call remove method; otherwise just iterating
+            // the keys or values gives a ConcurrentModificationException because removeRegister removes the item from the map
+            Set<Integer> keySet = new HashSet<>(registers.keySet());
+            keySet.forEach(id -> {
+                removeRegister(registers.get(id));
+            });
+        } finally {
+            wLock.unlock();
+        }
+    }
+
+    // External API -- query and change state
+
+    /**
+     * determines if the store is open
+     *
+     * @return true if open
+     */
+    public boolean isOpen() {
+        return open;
+    }
+
+    /**
+     * determines if the store is closed
+     *
+     * @return true if closed
+     */
+    public boolean isClosed() {
+        // just be reflexive of method for now is case
+        // open state gets more complex -- delegate to that to decide overall state
+        return !isOpen();
+    }
+
+    public void open() {
+        open = true;
+        registerAdd = true;
+    }
+
+    public void closeStore() {
+        running = false;
     }
 
     // Stock management operations
@@ -61,11 +142,11 @@ public class Store {
      * Items are merged according to rules of {@link Item#merge}
      * Repricing an Item consists of adding a newly priced Item with a quantity of zero
      *
-     * @param item The new Item in the stock. in the case of an error during additive case, the existing Item is guaranteed to be preserved.
+     * @param item The new Item in the stock. in the case of an error during additive case, the existing Item is
+     *             guaranteed to be preserved.
      */
     public Item addItem(Item item) {
         Lock wLock = stockLock.writeLock();
-        Item stockItem;
 
         wLock.lock();
         try {
@@ -75,18 +156,17 @@ public class Store {
                 Item updated = Item.merge(existing, item);
                 if (updated.getQuantity() >= 0) {
                     stock.put(name, updated);
-                    stockItem = updated;
+                    return updated;
                 } else {
-                    stockItem = existing;
+                    return existing;
                 }
             } else {
                 stock.put(name, item);
-                stockItem = item;
+                return item;
             }
         } finally {
             wLock.unlock();
         }
-        return stockItem;
     }
 
     /**
@@ -95,14 +175,12 @@ public class Store {
      */
     public Item queryItem(String name) {
         Lock rLock = stockLock.readLock();
-        Item item;
         rLock.lock();
         try {
-            item = stock.get(name);
+            return stock.get(name);
         } finally {
             rLock.unlock();
         }
-        return item;
     }
 
     /**
@@ -110,7 +188,8 @@ public class Store {
      *
      * @param itemName          Name of Item to take from stock
      * @param requestedQuantity units of Item to take
-     * @return Item  -- null if the Store does not have that Item, or a valid Item reflecting the requested quantity, or a lower quantity if the Store does not have that many units
+     * @return Item  -- null if the Store does not have that Item, or a valid Item reflecting the requested quantity, or
+     * a lower quantity if the Store does not have that many units
      */
     public Item takeItem(String itemName, int requestedQuantity) {
         // get Item from stock -- while we do this, nothing else should be modifying the stock
@@ -145,29 +224,70 @@ public class Store {
         // the requester does not see it. Right now, tough luck for our Shopper
         return returnedItem;
     }
+    // End of stock management
+
+    // Register control
 
     /**
-     * Open the Store
-     *
-     * TODO -- this is not thread-safe; wrap all this logic in a tight run loop that can deque Shoppers as needed once it is open or just let them pass once open and stop using queue then
+     * Add a Register to the Store.
+     * @param register Register to add to Store
+     * @return register object if Register is successfully added; null otherwise
      */
-    public void open() {
-        open.set(true);
-        List<Shopper> shoppers = new ArrayList<>(waitingShoppers.size());
-        waitingShoppers.drainTo(shoppers);
-        shoppers.forEach(Shopper::allowShop);
+    public Register addRegister(Register register) {
+        if (registerAdd) {
+            Lock wLock = registerLock.writeLock();
+            wLock.lock();
+            try {
+                registers.put(register.getId(), register);
+                return register;
+            } finally {
+                wLock.unlock();
+            }
+        }
+        return null;
+
     }
+
+    /**
+     * Remove a Register from the Store's pool.
+     *
+     * @param register Register to remove
+     * @return the removed Register, or null if this Register was not in the register pool
+     */
+    public Register removeRegister(Register register) {
+        // remove from available pool immediately
+        Lock wLock = registerLock.writeLock();
+        Register remove;
+        wLock.lock();
+        try {
+            remove = registers.remove(register.getId());
+        } finally {
+            wLock.unlock();
+        }
+
+        // Register is now independent of Store pool and we don't need a lock
+        if (remove != null) {
+            remove.checkoutAll();
+        }
+
+        return remove;
+    }
+
+    // End of store control logic
+
+    // Shopper interactions
 
     /**
      * Let a Shopper start the shopping process.
      * If the store is open, they are accepted immediately
      * If the store is closed, they may choose to wait, in which case they enter the Stores waiting queue.
      * Either way, this method returns immediately.
-     *
+     * <p>
      * TODO --  as with open(), modify to work with a tight run() loop
      *
      * @param shopper Shopper wanting to shop in this Store
-     * @return true if the Shopper was accepted (possibly in a wait state), false if it was not (chose not to wait or wait line is full)
+     * @return true if the Shopper was accepted (possibly in a wait state), false if it was not (chose not to wait or
+     * wait line is full)
      */
     public boolean startShopper(Shopper shopper) {
         if (isOpen()) {
@@ -179,32 +299,12 @@ public class Store {
         return false;
     }
 
-    /**
-     * determines if the store is open
-     *
-     * @return true if open
-     */
-    public boolean isOpen() {
-        return open.get();
+    public void startShopperCheckout(Shopper shopper) {
+        // just assign all to first Register now -- should still work
+        List<Register> availableRegisters = new ArrayList<>(registers.values());
+        if (!availableRegisters.isEmpty()) {
+            availableRegisters.get(0).addShopper(shopper);
+        }
     }
-
-    /**
-     * determines if the store is closed
-     *
-     * @return true if closed
-     */
-    public boolean isClosed() {
-        // just be reflexive for now is case open state gets more complex -- delegate to that to decide overall state
-        return !isOpen();
-    }
-
-    @SuppressWarnings("unused")
-    public void checkoutShopper(Shopper shopper) {
-        // do nothing right now -- should be hooked up to a collection of Registers
-    }
-
-    @SuppressWarnings("unused")
-    public void exitShopper(Shopper shopper) {
-        // do nothing right now -- eventually it will clear this Shopper from an active list
-    }
+    // end of shopper interactions
 }

@@ -21,6 +21,7 @@ public class Register {
     }
 
     public Register(int lineLimit) {
+        super();
         if (lineLimit > 0) {
             waitingShoppers = new LinkedBlockingQueue<>(lineLimit);
         } else {
@@ -29,31 +30,41 @@ public class Register {
         this.id = idCounter.getAndIncrement();
     }
 
-    public void checkoutShopper() {
+    Shopper checkoutNext() {
         // No waiting timeout right now; adjust as desired behavior becomes clear
         Shopper shopper = waitingShoppers.poll();
         if (shopper != null) {
             Receipt receipt = new Receipt();
             Cart cart = shopper.getCart();
-            final List<Item> validItems = cart.getItems().stream().filter(i -> i.getQuantity() > 0).collect(Collectors.toList());
+            List<Item> validItems = cart.getItems().stream().filter(i -> i.getQuantity() > 0).collect(Collectors.toList());
+            // we processed all the cart items, zero it out
+            cart.clear();
             receipt.addItems(validItems);
             shopper.setReceipt(receipt);
         }
+        return shopper;
+    }
+
+    void checkoutAll() {
+        Shopper checkedOut;
+        do {
+            checkedOut = checkoutNext();
+        } while (checkedOut != null);
     }
 
 
-    public boolean addWaitingShopper(Shopper shopper) {
+    public boolean addShopper(Shopper shopper) {
         return waitingShoppers.offer(shopper);
     }
 
     /**
-     * @return number of Shoppers waiting. In a multithreaded context, this may change after querying, so this is just informational and #addWaitingShopper may still refuse requests
+     * @return number of Shoppers waiting. In a multithreaded context, this may change after querying, so this is just informational and #addShopper may still refuse requests
      */
-    public int getWaitingCount() {
+    int getWaitingCount() {
         return waitingShoppers.size();
     }
 
-    public int getRemainingWaitLimit() {
+    int getRemainingWaitLimit() {
         return waitingShoppers.remainingCapacity();
     }
 

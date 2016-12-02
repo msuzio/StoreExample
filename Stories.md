@@ -102,12 +102,13 @@ Convert Shopper to fit updated design
 
 Convert Store and Register to fit updated design
 
-* Link Registers to Store, closing the total Shopping loop
-* Register checkout calls Shopper exit logic
-* Store tracks active shoppers
+* ~~Link Registers to Store, closing the total Shopping loop~~
+* ~~Register checkout calls Shopper exit logic~~
+* Store tracks active shoppers __(unclear on design goal; moved to next Iteration)__
    * Adds them when they start shopping
-   * Removes them when they exit 
-* All components must still be able to execute in single-threaded mode for testing.
+   * Removes them when they exit
+* ~~All components must still be able to execute in single-threaded mode for testing.~~
+* ~~cleanup Store -- methods should be logically grouped.~~
 
  
 ## Backlog / Discussion points

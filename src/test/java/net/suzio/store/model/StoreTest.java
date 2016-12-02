@@ -25,6 +25,25 @@ public class StoreTest {
         assertTrue("Store.isClosed returns false on initialization.", store.isClosed());
     }
 
+    // Register operations
+    @Test
+    public void testAddRegisterWhenClosed() {
+        Store store = new Store();
+        // should fail to add Register
+        Register r = new Register();
+        Register returned = store.addRegister(r);
+        assertNotNull("Adding a Register to a closed Store should return null", returned);
+    }
+
+    public void testAddRegisterWhenOpen() {
+        Store store = new Store();
+        store.open();
+        // should work and return identical Register object
+        Register r = new Register();
+        Register returned = store.addRegister(r);
+        assertSame(r, returned);
+    }
+
     @Test
     public void storeLineLimit() {
         int lineLimit = 5;

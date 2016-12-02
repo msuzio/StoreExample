@@ -23,4 +23,8 @@ public class Cart {
     public List<Item> getItems() {
         return new ArrayList<>(items);
     }
+
+    public void clear() {
+        items.clear();
+    }
 }
