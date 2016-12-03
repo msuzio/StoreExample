@@ -53,7 +53,7 @@ public class Shopper implements Runnable {
     }
 
     /**
-     * Create a Shopper to operate with an assigned Store, with no set waiting behavior
+     * Create a Shopper to operate with an assigned Store, with a specific waiting behavior
      *
      * @param store    Store we operate on
      * @param itemList List of Items we want to buy
