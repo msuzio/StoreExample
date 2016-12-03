@@ -3,8 +3,9 @@ package net.suzio.store.model;
 import net.suzio.store.model.util.ItemUtil;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -16,14 +17,14 @@ import java.util.concurrent.CountDownLatch;
 public class Shopper implements Runnable {
     private Store store;
     private boolean waitable;
-    // probably could just be a regular map; that change only affects #getShoppingList, since shop() operation is otherwise single-threaded if it implements Runnable as expected and the class does not expose internal state
-    private final ConcurrentHashMap<String, Item> shoppingMap = new ConcurrentHashMap<>();
+
+    private final Map<String, Item> shoppingMap = new HashMap<>();
     private final Cart cart = new Cart();
     private Receipt receipt;
 
     // CONCURRENCY BARRIER -- don't need CyclicBarrier reset functionality
     // wait/notify might suffice, since no matter what we need another thread to signal us
-    // Not sure if there's performance implications of this -- would be sa good StackOverflow question?
+    // Not sure if there's performance implications of this -- would be a good StackOverflow question?
     final CountDownLatch shoppingBarrier = new CountDownLatch(1);
 
     // Accept a List in our constructors simply because that is more direct to our intent and easier to construct inside our tests;
@@ -48,7 +49,7 @@ public class Shopper implements Runnable {
         this.store = store;
         if (itemList != null) {
             // Fold repeats and hash by names for easy retrieval
-            shoppingMap.putAll(ItemUtil.itemstoMap(itemList));
+            shoppingMap.putAll(ItemUtil.itemsToMap(itemList));
         }
     }
 
@@ -134,13 +135,8 @@ public class Shopper implements Runnable {
      * single Item
      */
     protected List<Item> getShoppingList() {
-
-        // Parallelism threshold is basically, none -- this is an operation not truly meant for access while shop() method executes
-        // and should be kept protected (only because then it keeps class testable)
-        // alternative is read/write locking, which is correct behavior but not needed *yet* and would slowdown shopping which is otherwise single-threaded
-        // KEEP AN EYE ON THESE ASSUMPTIONS
         List<Item> listItems = new ArrayList<>();
-        shoppingMap.forEachValue(1, listItems::add);
+        listItems.addAll(shoppingMap.values());
         return listItems;
     }
 

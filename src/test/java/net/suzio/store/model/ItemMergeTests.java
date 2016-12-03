@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Test cases for Iten.Merge() method; got too big to keep in ItemTest
+ * Test cases for Item.Merge() method; got too big to keep in ItemTest
  *
  * @see Item#merge(Item, Item) Created by Michael on 11/16/2016.
  */
@@ -111,14 +111,14 @@ public class ItemMergeTests {
     public void testMergeUnit() {
         // Change unit measure
         Item bagOfGrapes = new Item("grapes", 5.99, 1, "bag");
-        Item lbOfgrapes = new Item("grapes", 2.99, 0, "LB");
+        Item lbOfGrapes = new Item("grapes", 2.99, 0, "LB");
 
 
-        Item newUnits = Item.merge(bagOfGrapes, lbOfgrapes);
+        Item newUnits = Item.merge(bagOfGrapes, lbOfGrapes);
         assertNotNull(newUnits);
         assertEquals("Updated Item has wrong name ", bagOfGrapes.getName(), newUnits.getName());
-        assertEquals("Updated Item has wrong units ", newUnits.getUnits(), lbOfgrapes.getUnits());
-        assertEquals("Updated Item has wrong price", lbOfgrapes.getPrice(), newUnits.getPrice(), 0.0);
+        assertEquals("Updated Item has wrong units ", newUnits.getUnits(), lbOfGrapes.getUnits());
+        assertEquals("Updated Item has wrong price", lbOfGrapes.getPrice(), newUnits.getPrice(), 0.0);
         assertEquals("Updated Item has wrong quantity", 1, newUnits.getQuantity());
     }
 }

@@ -32,7 +32,7 @@ enqueuing and dequeuing shoppers in various states of executing a "shopping run"
  4. Once the Store opens:
     1. the "open" flag is atomically flipped -- at that point, no more Shoppers should ever possibly enter the wait queue
     2. The queue of waiting Shoppers is drained to a "known Shoppers" collection.
-    3. Each Shopper has its _shop_ phase intiated __(thread 0)__
+    3. Each Shopper has its _shop_ phase initiated __(thread 0)__
     
  5. Now each Shopper thread executes the steps of the _shop_ phase. __(thread 1..n)__
     1. Try to add items from the shopping list to the Cart by querying the Store
@@ -57,7 +57,7 @@ enqueuing and dequeuing shoppers in various states of executing a "shopping run"
       1. deque Shopper
       2. remove Items from their Cart
          * Lookup the Item through the Store
-         * Add the Item to the Reciept
+         * Add the Item to the Receipt
          * attach the Receipt to the Shopper
          * signal _exit_ to the Shopper
   

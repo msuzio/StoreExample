@@ -40,7 +40,7 @@ Implementing skeleton of Store/Shopper interactions
 Correcting bad design points and poor structure
 
 * ~~Item should not throw an Exception in the constructor.~~
-   * ~~This mis-feature is spread out smongst the code base.  Touch all areas as needed.~~
+   * ~~This mis-feature is spread out amongst the code base.  Touch all areas as needed.~~
   
    
 ## Iteration Five:
@@ -70,7 +70,7 @@ Checkout steps, minor cleanups
 
 ### Comment
 
-Git commit was severly delayed by lone developer having Thanksgiving week off. 
+Git commit was severely delayed by lone developer having Thanksgiving week off. 
 
 ## Iteration Seven
 ### Focus
@@ -136,7 +136,7 @@ Clean up tests , address code inspections, and revisit specification to review c
       * Store should empty waiting Shopper queue on opening, and signal waiting threads to continue
       * Registers keep a thread-safe queue of Shoppers, and dequeue as needed.
  * Move stock control out of Store, removing most of the threading concerns
-     * methods should be suitable for any datasource, mirorring CRUD focus
+     * methods should be suitable for any datasource, mirroring CRUD focus
      * Start with simple version of this Service/Repository, even possibly just a move of logic from Store keeping existing in-memory map
  * Add logging (split into multiple stories as needed)
   

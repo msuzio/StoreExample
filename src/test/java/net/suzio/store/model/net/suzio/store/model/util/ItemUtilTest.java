@@ -22,7 +22,7 @@ public class ItemUtilTest {
         Item almonds = new Item("almonds", 2.99, 1, "jar");
         Item bananas = new Item("Bananas", 2.99, 1, "LB");
         List<Item> items = Arrays.asList(threeGallons, almonds, bananas);
-        Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
+        Map<String, Item> itemMap = ItemUtil.itemsToMap(items);
         assertEquals("Map generated from list has incorrect number of mappings", items.size(), itemMap.size());
         items.forEach(i -> {
             Item found = itemMap.get(i.getName());
@@ -43,7 +43,7 @@ public class ItemUtilTest {
         Item takeThreeBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), -3, oneBanana.getUnits());
 
         List<Item> items = Arrays.asList(oneBanana, threeBanana, takeThreeBanana);
-        Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
+        Map<String, Item> itemMap = ItemUtil.itemsToMap(items);
 
         assertEquals("Map generated from list has incorrect number of mappings", 1, itemMap.size());
         Item found = itemMap.get(bananas);

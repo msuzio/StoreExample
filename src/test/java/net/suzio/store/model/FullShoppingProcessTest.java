@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class FullShoppingProcessTest {
 
     @Test
-    public void testSingleThreadshopping() {
+    public void testSingleThreadShopping() {
         // Create a Store
         Store store = new Store();
         // Add Items

@@ -13,11 +13,11 @@ import java.util.Map;
 @SuppressWarnings("UtilityClass")
 public final class ItemUtil {
 
-    @SuppressWarnings("ImplicitCallToSuper")
     private ItemUtil() {
+        super();
     }
 
-    public static Map<String, Item> itemstoMap(Iterable<Item> items) {
+    public static Map<String, Item> itemsToMap(Iterable<Item> items) {
         Map<String, Item> map = new HashMap<>();
 
         items.forEach(i -> {

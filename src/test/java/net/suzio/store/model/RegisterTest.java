@@ -63,7 +63,7 @@ public class RegisterTest {
         doCallRealMethod().when(shopper).setReceipt(any(Receipt.class));
         //noinspection ResultOfMethodCallIgnored
         doCallRealMethod().when(shopper).getReceipt();
-        // verify cart clear merhod got called
+        // verify cart clear method got called
 
         when(oneItemCart.getItems()).thenReturn(Collections.singletonList(new Item("Test", 1.0, 4, "Packages")));
 

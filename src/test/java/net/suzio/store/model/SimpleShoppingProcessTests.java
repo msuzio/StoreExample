@@ -34,7 +34,7 @@ public class SimpleShoppingProcessTests {
         List<Item> doneShoppingList = shopper.getShoppingList();
         assertNotNull(doneShoppingList);
         assertEquals("Shopper's finished Item list in expected non-shopping case is not of expected size", items.size(), doneShoppingList.size());
-        items.forEach(i -> assertTrue("Shopper's finished list does not contan expected  Item " + i, doneShoppingList.contains(i)));
+        items.forEach(i -> assertTrue("Shopper's finished list does not contain expected  Item " + i, doneShoppingList.contains(i)));
     }
 
     @Test
@@ -55,7 +55,7 @@ public class SimpleShoppingProcessTests {
 
         // Store must return back anything we ask for
         when(store.takeItem(anyString(), anyInt())).then(invoke -> {
-            String name = (String) invoke.getArgument(0);
+            String name = invoke.getArgument(0);
             return itemsMap.get(name);
         });
 
@@ -74,7 +74,7 @@ public class SimpleShoppingProcessTests {
         assertNotNull(cartItems);
         assertEquals("Shopping cart contains incorrect number of Items", items.size(), cartItems.size());
 
-        Map<String, Item> cartItemsMap = ItemUtil.itemstoMap(cartItems);
+        Map<String, Item> cartItemsMap = ItemUtil.itemsToMap(cartItems);
         itemsMap.keySet().forEach(k -> {
                                       assertTrue("Cart does not contain expected Item name " + k, cartItemsMap.containsKey(k));
                                       assertTrue("Cart does not have expected Item ", itemsMap.get(k).equals(cartItemsMap.get(k)));
@@ -111,7 +111,7 @@ public class SimpleShoppingProcessTests {
         assertNotNull(doneShoppingList);
         assertEquals("Shopping list from shopping run with unknown item is of wrong size", 2, doneShoppingList.size());
 
-        Map<String, Item> doneItemsMap = ItemUtil.itemstoMap(doneShoppingList);
+        Map<String, Item> doneItemsMap = ItemUtil.itemsToMap(doneShoppingList);
         Item unknownFinal = doneItemsMap.get(unknown.getName());
         assertNotNull(unknownFinal);
         assertTrue("Unknown item on finished shopping list is not equal to expected object", unknown.equals(unknownFinal));

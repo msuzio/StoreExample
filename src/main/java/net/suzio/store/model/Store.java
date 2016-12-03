@@ -96,9 +96,7 @@ public class Store {
             // Have to capture keys in a new set then call remove method; otherwise just iterating
             // the keys or values gives a ConcurrentModificationException because removeRegister removes the item from the map
             Set<Integer> keySet = new HashSet<>(registers.keySet());
-            keySet.forEach(id -> {
-                removeRegister(registers.get(id));
-            });
+            keySet.forEach(id -> removeRegister(registers.get(id)));
         } finally {
             wLock.unlock();
         }
@@ -134,7 +132,7 @@ public class Store {
     }
 
     /**
-     * Shut Store down for the night. After thid method is called, all new requests to the Store will be refused and
+     * Shut Store down for the night. After this method is called, all new requests to the Store will be refused and
      * pending operations will be finished as soon as possible
      */
     public void shutdownStore() {
