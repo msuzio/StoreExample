@@ -12,9 +12,9 @@ import java.util.stream.Collectors;
 public class Register {
     // optionally bounded queue of Shoppers waiting for this register
     // our waiting shoppers are always in a Queue
-    private LinkedBlockingQueue<Shopper> waitingShoppers;
-    private static AtomicInteger idCounter = new AtomicInteger(0);
-    private Integer id;
+    private final LinkedBlockingQueue<Shopper> waitingShoppers;
+    private static final AtomicInteger idCounter = new AtomicInteger(0);
+    private final Integer id;
 
     public Register() {
         this(0);

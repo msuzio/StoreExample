@@ -10,7 +10,12 @@ import java.util.Map;
  * <p>
  * Created by Michael on 11/16/2016.
  */
-public class ItemUtil {
+@SuppressWarnings("UtilityClass")
+public final class ItemUtil {
+
+    @SuppressWarnings("ImplicitCallToSuper")
+    private ItemUtil() {
+    }
 
     public static Map<String, Item> itemstoMap(Iterable<Item> items) {
         Map<String, Item> map = new HashMap<>();

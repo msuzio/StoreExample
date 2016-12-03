@@ -22,7 +22,7 @@ public class ItemUtilTest {
         Item almonds = new Item("almonds", 2.99, 1, "jar");
         Item bananas = new Item("Bananas", 2.99, 1, "LB");
         List<Item> items = Arrays.asList(threeGallons, almonds, bananas);
-        final Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
+        Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
         assertEquals("Map generated from list has incorrect number of mappings", items.size(), itemMap.size());
         items.forEach(i -> {
             Item found = itemMap.get(i.getName());
@@ -35,7 +35,7 @@ public class ItemUtilTest {
     public void testListToMapMerges() {
         // three different Items, and the expected result
         // Test merging identical items and assert we now have one item with a quantity of 1
-        final String bananas = "Bananas";
+        String bananas = "Bananas";
 
         // set up bananas
         Item oneBanana = new Item(bananas, 0.99, 1, "LB");
@@ -43,7 +43,7 @@ public class ItemUtilTest {
         Item takeThreeBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), -3, oneBanana.getUnits());
 
         List<Item> items = Arrays.asList(oneBanana, threeBanana, takeThreeBanana);
-        final Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
+        Map<String, Item> itemMap = ItemUtil.itemstoMap(items);
 
         assertEquals("Map generated from list has incorrect number of mappings", 1, itemMap.size());
         Item found = itemMap.get(bananas);

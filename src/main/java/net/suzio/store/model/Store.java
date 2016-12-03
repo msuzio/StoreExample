@@ -14,17 +14,17 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 @SuppressWarnings("WeakerAccess")
 public class Store {
     // our waiting shoppers are always in a Queue
-    private LinkedBlockingQueue<Shopper> waitingShoppers;
+    private final LinkedBlockingQueue<Shopper> waitingShoppers;
 
     // use non-concurrent Maps, and lock selectively -- possible ConcurrentHashMap is better,
     // but won't optimize just yet -- behavior of adding and removing Registers during run() loop
     // seems to be more understandable with explicit locking right now
-    private HashMap<Integer, Register> registers = new HashMap<>();
-    private ReadWriteLock registerLock = new ReentrantReadWriteLock();
+    private final HashMap<Integer, Register> registers = new HashMap<>();
+    private final ReadWriteLock registerLock = new ReentrantReadWriteLock();
     // As above, could this better be a ConcurrentHashMap?
     // TODO -- Move this into a Service rather than internal store? JPA or Spring Data storage would be closer to a real model, and separating this out paves the way
-    private HashMap<String, Item> stock = new HashMap<>();
-    private ReadWriteLock stockLock = new ReentrantReadWriteLock();
+    private final HashMap<String, Item> stock = new HashMap<>();
+    private final ReadWriteLock stockLock = new ReentrantReadWriteLock();
 
     // control variables
     private volatile boolean open;
@@ -126,12 +126,18 @@ public class Store {
         return !isOpen();
     }
 
+    /**
+     * Perform any logic needed to initialize the Store to a state ready for processing
+     */
     public void open() {
         open = true;
-        registerAdd = true;
     }
 
-    public void closeStore() {
+    /**
+     * Shut Store down for the night. After thid method is called, all new requests to the Store will be refused and
+     * pending operations will be finished as soon as possible
+     */
+    public void shutdownStore() {
         running = false;
     }
 
@@ -236,13 +242,15 @@ public class Store {
      */
     public Register addRegister(Register register) {
         if (registerAdd) {
-            Lock wLock = registerLock.writeLock();
-            wLock.lock();
-            try {
-                registers.put(register.getId(), register);
-                return register;
-            } finally {
-                wLock.unlock();
+            if (register != null) {
+                Lock wLock = registerLock.writeLock();
+                wLock.lock();
+                try {
+                    registers.put(register.getId(), register);
+                    return register;
+                } finally {
+                    wLock.unlock();
+                }
             }
         }
         return null;
@@ -258,12 +266,14 @@ public class Store {
     public Register removeRegister(Register register) {
         // remove from available pool immediately
         Lock wLock = registerLock.writeLock();
-        Register remove;
-        wLock.lock();
-        try {
-            remove = registers.remove(register.getId());
-        } finally {
-            wLock.unlock();
+        Register remove = null;
+        if (register != null) {
+            wLock.lock();
+            try {
+                remove = registers.remove(register.getId());
+            } finally {
+                wLock.unlock();
+            }
         }
 
         // Register is now independent of Store pool and we don't need a lock
@@ -283,8 +293,6 @@ public class Store {
      * If the store is open, they are accepted immediately
      * If the store is closed, they may choose to wait, in which case they enter the Stores waiting queue.
      * Either way, this method returns immediately.
-     * <p>
-     * TODO --  as with open(), modify to work with a tight run() loop
      *
      * @param shopper Shopper wanting to shop in this Store
      * @return true if the Shopper was accepted (possibly in a wait state), false if it was not (chose not to wait or

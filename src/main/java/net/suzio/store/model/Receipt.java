@@ -5,14 +5,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Receipt assciated with a Shoppers shopping run
+ * Receipt associated with a Shoppers shopping run
  */
 public class Receipt {
-    private List<Item> orderItems = new ArrayList<>();
-
-    public Receipt() {
-
-    }
+    private final List<Item> orderItems = new ArrayList<>();
 
     public void addItems(List<Item> items) {
         orderItems.addAll(items);

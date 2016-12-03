@@ -19,29 +19,68 @@ public class StoreTest {
     private static final String GALLON = "Gallon";
 
     @Test
+    // Basic assumption of core logic
     public void storeStartsClosed() {
         Store store = new Store();
         assertFalse("Store.isOpen returns true on initialization.", store.isOpen());
         assertTrue("Store.isClosed returns false on initialization.", store.isClosed());
     }
 
+    @Test
+    public void testCanShutdownNewStore() {
+        Store store = new Store();
+        try {
+            store.shutdownStore();
+        } catch (Exception ex) {
+            fail("Exception in shutting down newly created Store. Error was: " + ex.getMessage());
+        }
+    }
     // Register operations
     @Test
-    public void testAddRegisterWhenClosed() {
+    public void testAddRegister() {
         Store store = new Store();
-        // should fail to add Register
-        Register r = new Register();
-        Register returned = store.addRegister(r);
-        assertNotNull("Adding a Register to a closed Store should return null", returned);
-    }
 
-    public void testAddRegisterWhenOpen() {
-        Store store = new Store();
-        store.open();
         // should work and return identical Register object
         Register r = new Register();
         Register returned = store.addRegister(r);
         assertSame(r, returned);
+    }
+
+    @Test
+    public void testAddNullRegister() {
+        Store store = new Store();
+
+        Register added = store.addRegister(null);
+        assertNull("addRegister returned non-null when adding a null register", added);
+    }
+
+    @Test
+    public void testRemoveRegister() {
+        Store store = new Store();
+        Register known = new Register();
+        store.addRegister(known);
+        Register remove = store.removeRegister(known);
+        assertSame("Removed Register was not the same as the added Register", known, remove);
+    }
+
+    @Test
+    public void testRemoveUnknownRegister() {
+        Store store = new Store();
+        Register remove = store.removeRegister(new Register());
+        assertNull("call to removeRegister should have returned null in case of an unknown Register", remove);
+
+        // Be sure same holds true if we added a known Register first
+        Register known = new Register();
+        store.addRegister(known);
+        remove = store.removeRegister(new Register());
+        assertNull("call to removeRegister should have returned null in case of an unknown Register", remove);
+    }
+
+    @Test
+    public void testRemoveNullRegister() {
+        Store store = new Store();
+        Register remove = store.removeRegister(null);
+        assertNull("call to removeRegister should have returned null in case of a null value", remove);
     }
 
     @Test
@@ -119,7 +158,7 @@ public class StoreTest {
         Store store = new Store();
 
         store.addItem(oneBanana);
-        final Item noBananas = store.addItem(negativeQuantity);
+        Item noBananas = store.addItem(negativeQuantity);
 
         assertNotNull(MERGED_ITEM_WAS_NULL, noBananas);
 
@@ -142,7 +181,7 @@ public class StoreTest {
         assertSame(stockedItem, threeGallons);
 
         // Now try to take some milk
-        final Item tookTwoGallons = store.takeItem(MILK, 2);
+        Item tookTwoGallons = store.takeItem(MILK, 2);
 
         assertEquals("Item taken from stock has wrong name ", threeGallons.getName(), tookTwoGallons.getName());
         assertEquals("Item taken from stock has wrong units ", threeGallons.getUnits(), tookTwoGallons.getUnits());
@@ -165,7 +204,7 @@ public class StoreTest {
         Store store = new Store();
         store.addItem(threeGallons);
 
-        //Now try to take more than we have -- weshould only get up to all current available stock
+        //Now try to take more than we have -- we should only get up to all current available stock
         Item tryTakeFourGallons = store.takeItem(MILK, 4);
         assertEquals("Item taken from stock has wrong name ", threeGallons.getName(), tryTakeFourGallons.getName());
         assertEquals("Item taken from stock has wrong units ", threeGallons.getUnits(), tryTakeFourGallons.getUnits());

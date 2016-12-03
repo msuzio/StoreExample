@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Cart {
     // No pressing need to size this explicitly just yet; default constructor is OK
-    private List<Item> items = new ArrayList<>();
+    private final List<Item> items = new ArrayList<>();
 
     public void addItem(Item item) {
         items.add(item);

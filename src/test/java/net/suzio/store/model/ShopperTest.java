@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * Placeholder for tests on Shopper object
@@ -16,7 +17,10 @@ public class ShopperTest {
 
     @Test
     public void testMakeShoppingList() {
-        Store store = new Store();
+        // better work with just a mock right now; if we discover couplings those may be code smells
+        // Note: this makes first test to run go much slower; assume it's Mockito overhead further mock instantiations do not incur
+        Store store = mock(Store.class);
+
         List<Item> items = Arrays.asList(
                 new Item("Peanut Butter", 5.99, 1, "jar"),
                 new Item("Jelly", 5.99, 1, "jar")
@@ -31,18 +35,15 @@ public class ShopperTest {
 
     @Test
     public void testEmptyShoppingList() {
-        // This ran insanely slow with a Mockito mock; this is actually simpler
-        Store store = new Store();
-        store.open();
+        Store store = mock(Store.class);
         Shopper shopper = new Shopper(store, Collections.emptyList());
-        final List<Item> shoppingList = shopper.getShoppingList();
+        List<Item> shoppingList = shopper.getShoppingList();
         assertTrue("shopping List should be empty list", shoppingList.isEmpty());
     }
 
     @Test
     public void testMakeShoppingListWithRepeats() {
-        //TODO - mock Store
-        Store store = new Store();
+        Store store = mock(Store.class);
         Item jelly = new Item("Jelly", 5.99, 1, "jar");
         Item pb = new Item("Peanut Butter", 5.99, 1, "jar");
         List<Item> items = Arrays.asList(

@@ -30,8 +30,9 @@ public class CartTest {
         List<Item> cartItems = cart.getItems();
         assertEquals("Cart list retrieved from cart does not have correct number of elements", itemsToAdd.size(), cartItems.size());
 
-        // elegance of lambda is a bit lost here.
-        cartItems.forEach(i ->
-                                  assertTrue("Item" + i + " + was never added to Cart, but was present in list returned from it", itemsToAdd.contains(i)));
+        for (Item i : cartItems) {
+            assertTrue("Item" + i +
+                               " + was never added to Cart, but was present in list returned from it", itemsToAdd.contains(i));
+        }
     }
 }

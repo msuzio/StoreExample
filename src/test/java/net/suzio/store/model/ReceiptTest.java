@@ -18,8 +18,8 @@ public class ReceiptTest {
     public void testOrderByPrice() {
         Receipt receipt = new Receipt();
 
-        final String bananas = "Bananas";
-        final String grapes = "Grapes";
+        String bananas = "Bananas";
+        String grapes = "Grapes";
         List<Item> items = new ArrayList<>();
         Item oneBanana = new Item(bananas, 0.99, 1, "LB");
         Item lbOfGrapes = new Item(grapes, 2.99, 1, "LB");
@@ -28,12 +28,12 @@ public class ReceiptTest {
         receipt.addItems(items);
 
         // expect to be returned in price order, not insertion order
-        final List<String> itemizedLines = receipt.getItemizedLines();
+        List<String> itemizedLines = receipt.getItemizedLines();
         assertNotNull("Itemized line list was null", itemizedLines);
         assertFalse("Itemized line list was empty", itemizedLines.isEmpty());
         assertEquals("Itemized line list was not of expected size", items.size(), itemizedLines.size());
-        final String line1 = itemizedLines.get(0);
-        final String line2 = itemizedLines.get(1);
+        String line1 = itemizedLines.get(0);
+        String line2 = itemizedLines.get(1);
 
         // Needs tests for summed price, but we don't want to bind this test too much to exact formatting
         // until Receipt accepts parametrized formatting we can externally control.
@@ -48,9 +48,9 @@ public class ReceiptTest {
     public void testOrderByPriceAndName() {
         Receipt receipt = new Receipt();
 
-        final String bananas = "Bananas";
-        final String grapes = "Grapes";
-        final String milk = "Milk";
+        String bananas = "Bananas";
+        String grapes = "Grapes";
+        String milk = "Milk";
         List<Item> items = new ArrayList<>();
         Item oneBanana = new Item(bananas, 0.99, 1, "LB");
         Item lbOfGrapes = new Item(grapes, 2.99, 1, "LB");
@@ -60,14 +60,14 @@ public class ReceiptTest {
         items.add(gallonOfMilk);
         receipt.addItems(items);
 
-        // expect to be returned in price an Name (descending) order, not insertion order
-        final List<String> itemizedLines = receipt.getItemizedLines();
+        // expect to be returned in price and Name (descending) order, not insertion order
+        List<String> itemizedLines = receipt.getItemizedLines();
         assertNotNull("Itemized line list was null", itemizedLines);
         assertFalse("Itemized line list was empty", itemizedLines.isEmpty());
         assertEquals("Itemized line list was not of expected size", items.size(), itemizedLines.size());
-        final String line1 = itemizedLines.get(0);
-        final String line2 = itemizedLines.get(1);
-        final String line3 = itemizedLines.get(2);
+        String line1 = itemizedLines.get(0);
+        String line2 = itemizedLines.get(1);
+        String line3 = itemizedLines.get(2);
 
         // Needs tests for summed price, but we don't want to bind this test too much to exact formatting
         // until Receipt accepts parametrized formatting we can externally control.
@@ -83,7 +83,7 @@ public class ReceiptTest {
     @Test
     public void testSumTotal() {
         // We assume the double values are not repeating values like (1 -0.9)
-        double[] validPrices = new double[]{
+        double[] validPrices = {
                 // no pennies
                 4.00,
                 // one penny
@@ -108,7 +108,7 @@ public class ReceiptTest {
             String receiptSum = receipt.getFormattedTotal();
             Pattern p = Pattern.compile("\\$\\d+\\.\\d\\d$");
             Matcher m = p.matcher(receiptSum);
-            assertTrue("Formatted total does not match expected pattern " + p.toString(), m.matches());
+            assertTrue("Formatted total does not match expected pattern " + p, m.matches());
             String expectedSum = String.valueOf(item1.getPrice() + item2.getPrice());
             // assert that the *correct value is in there
             assertTrue(receiptSum.contains(expectedSum));

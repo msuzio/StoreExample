@@ -52,22 +52,25 @@ public class FullShoppingProcessTest {
 
         // run main loop -- should checkout all Shoppers
         store.run();
-        store.closeStore();
+        store.shutdownStore();
 
-        // now all Shoppers should:
         for (int shopNum = 0; shopNum < shoppers.size(); shopNum++) {
+            // now all Shoppers should:
             Shopper s = shoppers.get(shopNum);
-            // have an empty cart
+
+            // * have an empty cart
             Cart c = s.getCart();
             assertTrue("Shopper cart was not empty after full shopping and checkout", c.getItems().isEmpty());
-            // Have a shopping list with the item they shopped for and zero quantity
+
+            // * Have a shopping list with the item they shopped for and zero quantity
             Item expected = items.get(shopNum);
             for (Item i : s.getShoppingList()) {
                 assertEquals(i.getName(), expected.getName());
                 assertEquals("Shopper " + shopNum + " had unexpected quantity in shopping list for item '" +
                                      i.getName(), 0, i.getQuantity());
             }
-            // Have a non-bull Receipt with an itemized list corresponding to the one Item they shopped for
+
+            // * Have a non-null Receipt with an itemized list corresponding to the one Item they shopped for
             Receipt r = s.getReceipt();
             assertNotNull("Receipt on shopper " + shopNum + "was null", r);
             List<String> lines = r.getItemizedLines();

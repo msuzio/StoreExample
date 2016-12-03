@@ -110,6 +110,19 @@ Convert Store and Register to fit updated design
 * ~~All components must still be able to execute in single-threaded mode for testing.~~
 * ~~cleanup Store -- methods should be logically grouped.~~
 
+## Iteration Ten
+### Focus
+
+Clean up tests , address code inspections, and revisit specification to review concerns from Iteration Nine
+
+* Cleanup overly coupled tests (use Mockito mocks)
+   * Register Test
+   * ShopperTest
+   * SimpleShoppingProcessTests
+* Review all inspections in project and fix or (very selectively) suppress where appropriate.
+* Check logic in Store/Shopper/Register against dataflow and choose if Store needs to track Shoppers
+   * this is directly to address dangling story from Iteration Nine
+
  
 ## Backlog / Discussion points
  * Assignment of Shoppers to Registers should be done from a pool of available Registers

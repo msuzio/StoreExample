@@ -13,14 +13,14 @@ public class ItemMergeTests {
     @Test
     public void testMergeName() {
         // same name is OK
-        final String bananas = "Bananas";
-        final String grapes = "Grapes";
+        String bananas = "Bananas";
+        String grapes = "Grapes";
 
         Item oneBanana = new Item(bananas, 0.99, 1, "LB");
         Item grapeItem = new Item(grapes, 2.99, 1, "LB");
 
         // Merging with different names returns original Item untouched
-        final Item result = Item.merge(oneBanana, grapeItem);
+        Item result = Item.merge(oneBanana, grapeItem);
         assertSame(oneBanana, result);
     }
 
@@ -30,7 +30,7 @@ public class ItemMergeTests {
         Item almonds = new Item("almonds", 4.99, 1, "jar");
         Item increasePrice = new Item("almonds", 10.99, 0, "jar");
 
-        final Item repriced = Item.merge(almonds, increasePrice);
+        Item repriced = Item.merge(almonds, increasePrice);
         assertNotNull(repriced);
         assertEquals("Updated Item has wrong name ", almonds.getName(), repriced.getName());
         assertEquals("Updated Item has wrong units ", almonds.getUnits(), repriced.getUnits());
@@ -42,7 +42,7 @@ public class ItemMergeTests {
     @Test
     public void testMergeQuantity() {
         // Test merging identical items and assert we now have one item with a quantity of 2
-        final String bananas = "Bananas";
+        String bananas = "Bananas";
 
         // set up bananas
         Item oneBanana = new Item(bananas, 0.99, 1, "LB");
@@ -50,7 +50,7 @@ public class ItemMergeTests {
         Item anotherBanana = new Item(oneBanana.getName(), oneBanana.getPrice(), 1, oneBanana.getUnits());
 
         // nothing added
-        final Item noChange = Item.merge(oneBanana, noBanana);
+        Item noChange = Item.merge(oneBanana, noBanana);
         // Should not happen -- names are constant
         assertEquals("Updated Item has wrong name ", oneBanana.getName(), noChange.getName());
         assertEquals("Updated Item has wrong units ", oneBanana.getUnits(), noChange.getUnits());
@@ -58,7 +58,7 @@ public class ItemMergeTests {
         assertEquals("Updated Item has wrong quantity", oneBanana.getQuantity(), noChange.getQuantity());
 
         // add together items
-        final Item twoBanana = Item.merge(oneBanana, anotherBanana);
+        Item twoBanana = Item.merge(oneBanana, anotherBanana);
         assertNotNull(twoBanana);
 
         // Should not happen -- names are constant
@@ -68,7 +68,7 @@ public class ItemMergeTests {
         assertEquals("Updated Item has wrong quantity", 2, twoBanana.getQuantity());
 
         // merge with itself -- expect identical results as above (but different object references)
-        final Item doubleBanana = Item.merge(oneBanana, oneBanana);
+        Item doubleBanana = Item.merge(oneBanana, oneBanana);
 
         assertEquals("Updated Item has wrong name ", oneBanana.getName(), doubleBanana.getName());
         assertEquals("Updated Item has wrong units ", oneBanana.getUnits(), doubleBanana.getUnits());
@@ -77,7 +77,7 @@ public class ItemMergeTests {
 
         // different, but logically equal
         assertTrue("Merge should have produced different object references", twoBanana != doubleBanana);
-        final boolean equality = twoBanana.equals(doubleBanana);
+        boolean equality = twoBanana.equals(doubleBanana);
         assertTrue("Merge should have produced logically equal object references", equality);
     }
 
@@ -89,7 +89,7 @@ public class ItemMergeTests {
         Item takeTwoGallons = new Item("milk", 2.99, -2, "Gallon");
         Item takeFourGallons = new Item("milk", 2.99, -4, "Gallon");
 
-        final Item nowOneGallon = Item.merge(threeGallons, takeTwoGallons);
+        Item nowOneGallon = Item.merge(threeGallons, takeTwoGallons);
         assertNotNull(nowOneGallon);
 
         assertEquals("Updated Item has wrong name ", threeGallons.getName(), nowOneGallon.getName());
@@ -98,7 +98,7 @@ public class ItemMergeTests {
         assertEquals("Updated Item has wrong quantity", 1, nowOneGallon.getQuantity());
 
         // negative quantity is OK
-        final Item negativeGallons = Item.merge(threeGallons, takeFourGallons);
+        Item negativeGallons = Item.merge(threeGallons, takeFourGallons);
         assertNotNull(negativeGallons);
 
         assertEquals("Updated Item has wrong name ", threeGallons.getName(), negativeGallons.getName());

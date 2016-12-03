@@ -16,6 +16,7 @@ public class Item {
 
     // for internal use
     private Item() {
+        super();
 
     }
 
@@ -113,7 +114,7 @@ public class Item {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Item{");
+        StringBuilder sb = new StringBuilder("Item{");
         sb.append("name='").append(name).append('\'');
         sb.append(", price=").append(price);
         sb.append(", quantity=").append(quantity);

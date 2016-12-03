@@ -13,18 +13,18 @@ import java.util.concurrent.CountDownLatch;
  * Created by Michael on 11/13/2016.
  */
 @SuppressWarnings("WeakerAccess")
-public class Shopper { // implements Runnable (not yet) {
-    private Store store = null;
-    private boolean waitable = false;
+public class Shopper implements Runnable {
+    private Store store;
+    private boolean waitable;
     // probably could just be a regular map; that change only affects #getShoppingList, since shop() operation is otherwise single-threaded if it implements Runnable as expected and the class does not expose internal state
-    private ConcurrentHashMap<String, Item> shoppingMap = new ConcurrentHashMap<>();
-    private Cart cart = new Cart();
+    private final ConcurrentHashMap<String, Item> shoppingMap = new ConcurrentHashMap<>();
+    private final Cart cart = new Cart();
     private Receipt receipt;
 
     // CONCURRENCY BARRIER -- don't need CyclicBarrier reset functionality
     // wait/notify might suffice, since no matter what we need another thread to signal us
     // Not sure if there's performance implications of this -- would be sa good StackOverflow question?
-    CountDownLatch shoppingBarrier = new CountDownLatch(1);
+    final CountDownLatch shoppingBarrier = new CountDownLatch(1);
 
     // Accept a List in our constructors simply because that is more direct to our intent and easier to construct inside our tests;
     // I think it's irrelevant that our internal model uses a HashMap
@@ -33,6 +33,7 @@ public class Shopper { // implements Runnable (not yet) {
      * create default Shopper, without a Store or a shopping list; should not expect it to  doing any shopping
      */
     public Shopper() {
+        super();
     }
 
     /**
@@ -43,6 +44,7 @@ public class Shopper { // implements Runnable (not yet) {
      * @param itemList List of Items we want to buy
      */
     public Shopper(Store store, List<Item> itemList) {
+        super();
         this.store = store;
         if (itemList != null) {
             // Fold repeats and hash by names for easy retrieval
@@ -87,7 +89,7 @@ public class Shopper { // implements Runnable (not yet) {
 
 
     public void doShopping() {
-        final boolean canShop = store.startShopper(this);
+        boolean canShop = store.startShopper(this);
         // We will do this for each Item in our shopping List:
         // -- try to take the Item from the Store
         // -- merge results with our desired quantity
@@ -126,9 +128,9 @@ public class Shopper { // implements Runnable (not yet) {
 
     /**
      * Get our shopping list.  In general, this method should not be called while our shop() method is running, as
-     * results are indeterminant
+     * results are indeterminant.
      *
-     * @return Copy of (immutable) shopping list Items. Multiple instances of a single Item will have been folded into a
+     * @return Copy of shopping list Items. Multiple instances of a single Item in the initial list will have been folded into a
      * single Item
      */
     protected List<Item> getShoppingList() {
@@ -143,11 +145,11 @@ public class Shopper { // implements Runnable (not yet) {
     }
 
     /**
+     * // TODO: 12/2/2016  -- explain concurrency issues better and guard against them if possible.
      * Get the cart the shopping process has filled Cautions of #getShoppingList apply, although calling this method as
      * shop() executes simply means we will not get a view of the complete shopping run.
      *
-     * @return Cart Shopper has put items into as shopping executed. Cart state should not be mutated by callers (@see
-     * Cart#addItem)
+     * @return Cart Shopper has put items into as shopping executed.
      */
     protected Cart getCart() {
         return cart;
@@ -163,18 +165,17 @@ public class Shopper { // implements Runnable (not yet) {
         return receipt;
     }
 
-    //    TODO we're not multi-threaded yet, although nothing in our implementation rules that out
-//    /**
-//     * run() method of Runnable interface. Default case just calls shop() method
-//     * <p>
-//     * The general contract of the method <code>run</code> is that it may
-//     * take any action whatsoever.
-//     * </p>
-//     *
-//     * @see Thread#run()
-//     */
-//    @Override
-//    public void run() {
-//       shop();
-//    }
+    /**
+     * run() method of Runnable interface. Default case just calls shop() method
+     * <p>
+     * The general contract of the method <code>run</code> is that it may
+     * take any action whatsoever.
+     * </p>
+     *
+     * @see Thread#run()
+     */
+    @Override
+    public void run() {
+        shop();
+    }
 }
