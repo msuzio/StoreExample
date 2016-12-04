@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * <p>
  * Created by Michael on 12/2/2016.
  */
-public class FullShoppingProcessTest {
+public class FullShoppingProcessTests {
 
     @Test
     public void testSingleThreadShopping() {
