@@ -115,29 +115,26 @@ Convert Store and Register to fit updated design
 
 Clean up tests , address code inspections, and revisit specification to review concerns from Iteration Nine
 
-* Cleanup overly coupled tests (use Mockito mocks)
-   * Register Test
-   * ShopperTest
-   * SimpleShoppingProcessTests
-* Review all inspections in project and fix or (very selectively) suppress where appropriate.
-* Check logic in Store/Shopper/Register against dataflow and choose if Store needs to track Shoppers
+* ~~Cleanup overly coupled tests (use Mockito mocks)~~
+   * ~~Register Test~~
+   * ~~ShopperTest~~
+   * ~~SimpleShoppingProcessTests~~
+* ~~Review all inspections in project and fix or (very selectively) suppress where appropriate.~~
+
+##Iteration Eleven
+* Check logic in Store/Shopper/Register against dataflow and choose if Store 
+  needs to track Shoppers
    * this is directly to address dangling story from Iteration Nine
 
  
 ## Backlog / Discussion points
- * Assignment of Shoppers to Registers should be done from a pool of available Registers
-     * This should be arbitrated somehow; specification right now says this should  be a behavior of the Shopper
- * Consider if all Item list operations should really be consistently Maps rather than constant implicit folding of quantities 
- * Shoppers should exit the store so Store.close() really knows it can complete close operation
-    * This implies a"closing" state
-    * Also implies Store keep track of Shoppers currently in the Store. This may be more complex than desirable.
-    * All Producer/Consumer logic remains undone (in favor of getting code committed now)
-      * Shopper should be Runnable, and waiting case should really wait (wait()/notify()?) 
-      * Store should empty waiting Shopper queue on opening, and signal waiting threads to continue
-      * Registers keep a thread-safe queue of Shoppers, and dequeue as needed.
- * Move stock control out of Store, removing most of the threading concerns
+* Assignment of Shoppers to Registers needs to be fixed to actually pick from 
+  the pool of available Registers via some reasonable best-guess algorithm
+* Receipt needs to better format each Itemized line 
+* Consider if all Item list operations should really be consistently Maps rather than 
+   constant implicit folding of quantities 
+* Move stock control out of Store, removing most of the threading concerns
      * methods should be suitable for any datasource, mirroring CRUD focus
      * Start with simple version of this Service/Repository, even possibly just a move of logic from Store keeping existing in-memory map
- * Add logging (split into multiple stories as needed)
-  
+* Add logging (split into multiple stories as needed)
   
