@@ -13,7 +13,7 @@ public class Register {
     // optionally bounded queue of Shoppers waiting for this register
     // our waiting shoppers are always in a Queue
     private final LinkedBlockingQueue<Shopper> waitingShoppers;
-    private static final AtomicInteger idCounter = new AtomicInteger(0);
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
     private final Integer id;
 
     public Register() {
@@ -27,7 +27,7 @@ public class Register {
         } else {
             waitingShoppers = new LinkedBlockingQueue<>();
         }
-        this.id = idCounter.getAndIncrement();
+        this.id = ID_COUNTER.getAndIncrement();
     }
 
     Shopper checkoutNext() {
@@ -36,11 +36,13 @@ public class Register {
         if (shopper != null) {
             Receipt receipt = new Receipt();
             Cart cart = shopper.getCart();
-            List<Item> validItems = cart.getItems().stream().filter(i -> i.getQuantity() > 0).collect(Collectors.toList());
-            // we processed all the cart items, zero it out
-            cart.clear();
-            receipt.addItems(validItems);
-            shopper.setReceipt(receipt);
+            if (cart != null) {
+                List<Item> validItems = cart.getItems().stream().filter(i -> i.getQuantity() > 0).collect(Collectors.toList());
+                // we processed all the cart items, zero it out
+                cart.clear();
+                receipt.addItems(validItems);
+                shopper.setReceipt(receipt);
+            }
         }
         return shopper;
     }
@@ -71,6 +73,17 @@ public class Register {
 
     public Integer getId() {
         return id;
+    }
+
+    @Override
+    // I consider this spurious at best, and the concatenation version will flag other inspectors
+    @SuppressWarnings("StringBufferReplaceableByString")
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Register{");
+        sb.append("waitingShoppers=").append(waitingShoppers);
+        sb.append(", id=").append(id);
+        sb.append('}');
+        return sb.toString();
     }
 
     @Override

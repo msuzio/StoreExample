@@ -31,10 +31,21 @@ public class Receipt {
         }).map(this::formatItem).collect(Collectors.toList());
     }
 
-    private String formatItem(Item i) {
+    private String formatItem(Item item) {
         // Fixed format currently
         String format = "%s %d @$%(,.2f/%s == $%(,.2f";
-        double sum = i.getQuantity() * i.getPrice();
-        return String.format(format, i.getName(), i.getQuantity(), i.getPrice(), i.getUnits(), sum);
+        double sum = item.getQuantity() * item.getPrice();
+        return String.format(format, item.getName(), item.getQuantity(), item.getPrice(), item.getUnits(), sum);
+    }
+
+    @Override
+    // I consider this spurious at best, and the concatenation version will flag other inspectors
+    @SuppressWarnings("StringBufferReplaceableByString")
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Receipt{");
+        sb.append(", formatted Total =").append(getFormattedTotal());
+        sb.append(", Itemized lines=").append(String.join(",", getItemizedLines()));
+        sb.append('}');
+        return sb.toString();
     }
 }

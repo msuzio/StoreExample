@@ -112,10 +112,11 @@ public class Item {
         return result;
     }
 
+    // I consider this spurious at best, and the concatenation version will flag other inspectors
+    @SuppressWarnings("StringBufferReplaceableByString")
     @Override
     public String toString() {
-        // I consider this spurious at best, and the concatenation version will flag other inspectors
-        @SuppressWarnings("StringBufferReplaceableByString")
+
         StringBuilder sb = new StringBuilder("Item{");
         sb.append("name='").append(name).append('\'');
         sb.append(", price=").append(price);

@@ -27,4 +27,33 @@ public class Cart {
     public void clear() {
         items.clear();
     }
+
+    public void removeItem(Item item) {
+        // not efficient, but not called often enough to make us revise our data structure
+        items.remove(item);
+    }
+
+    @Override
+    public String toString() {
+        //noinspection StringBufferReplaceableByString
+        @SuppressWarnings("StringBufferReplaceableByString") StringBuilder sb = new StringBuilder("Cart{");
+        sb.append("items=").append(items);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Cart cart = (Cart) o;
+
+        return items.equals(cart.items);
+    }
+
+    @Override
+    public int hashCode() {
+        return items.hashCode();
+    }
 }
