@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Model a Shopper that performs a shopping task
@@ -15,6 +16,9 @@ import java.util.concurrent.CountDownLatch;
  */
 @SuppressWarnings("WeakerAccess")
 public class Shopper implements Runnable {
+    private static final AtomicInteger ID_COUNTER = new AtomicInteger(0);
+    private final Integer id;
+
     private Store store;
     private boolean waitable;
 
@@ -27,14 +31,19 @@ public class Shopper implements Runnable {
     // Not sure if there's performance implications of this -- would be a good StackOverflow question?
     final CountDownLatch shoppingBarrier = new CountDownLatch(1);
 
+    // We want to be explicit in our logic
+    @SuppressWarnings("RedundantFieldInitialization")
+    private volatile boolean canShop = false;
+
+
     // Accept a List in our constructors simply because that is more direct to our intent and easier to construct inside our tests;
     // I think it's irrelevant that our internal model uses a HashMap
-
     /**
      * create default Shopper, without a Store or a shopping list; should not expect it to  doing any shopping
      */
     public Shopper() {
         super();
+        this.id = ID_COUNTER.getAndIncrement();
     }
 
     /**
@@ -45,7 +54,7 @@ public class Shopper implements Runnable {
      * @param itemList List of Items we want to buy
      */
     public Shopper(Store store, List<Item> itemList) {
-        super();
+        this();
         this.store = store;
         if (itemList != null) {
             // Fold repeats and hash by names for easy retrieval
@@ -73,24 +82,41 @@ public class Shopper implements Runnable {
         if (store != null) {
             // Won't return until shopping is done
             doShopping();
-            // In which case we can checkout, then leave -- checkout step returns (relatively) immediately,
-            // and we do not explicitly exit Store
-            checkout();
+
+            // checkout; checkout step returns (relatively) immediately,
+            // and either we were queued up to checkout  or perhaps we had to return some Items
+            if (!checkout()) {
+                // checkout failed.
+                // Adjust our list and Cart accordingly
+                List<Item> cartItems = cart.getItems();
+                cartItems.forEach(cartReturn ->
+                                  {
+                                      cart.removeItem(cartReturn);
+                                      Item listItem = shoppingMap.get(cartReturn.getName());
+                                      Item revisedItem = Item.merge(listItem, cartReturn);
+                                      shoppingMap.put(cartReturn.getName(), revisedItem);
+                                  });
+            }
         }
     }
 
-    private void checkout() {
-        store.startShopperCheckout(this);
+    private boolean checkout() {
+        return store.startShopperCheckout(this);
     }
+
 
     public void allowShop() {
         // flip barrier blocking shopping -- currently nothing waits on that, but this is the logic
         shoppingBarrier.countDown();
     }
 
+    public void stopShopping() {
+        canShop = false;
+    }
+
 
     public void doShopping() {
-        boolean canShop = store.startShopper(this);
+        canShop = store.startShopper(this);
         // We will do this for each Item in our shopping List:
         // -- try to take the Item from the Store
         // -- merge results with our desired quantity
@@ -105,17 +131,21 @@ public class Shopper implements Runnable {
 //                  //consider that if we push shopping code inside try/catch, we are still in a
 //                  //possible inconsistent state. I see no good answer right now, but this shouldn't be dismissed
 //            }
-            shoppingMap.values().forEach(i -> {
-                Item takenItem = store.takeItem(i.getName(), i.getQuantity());
-                if (takenItem != null) {
-                    cart.addItem(takenItem);
-                    Item decrement = new Item(takenItem.getName(), takenItem.getPrice(),
-                                              takenItem.getQuantity() * -1, takenItem.getUnits());
 
-                    // this merge will effectively decrement our shopping list
-                    Item listResult = Item.merge(i, decrement);
-                    shoppingMap.put(i.getName(), listResult);
-                } // Null case just means store didn't have our Item at all
+            shoppingMap.values().forEach(i -> {
+                // must check again each time,in case we're signaled to stop getting Items
+                if (canShop) {
+                    Item takenItem = store.takeItem(i.getName(), i.getQuantity());
+                    if (takenItem != null) {
+                        cart.addItem(takenItem);
+                        Item decrement = new Item(takenItem.getName(), takenItem.getPrice(),
+                                                  takenItem.getQuantity() * -1, takenItem.getUnits());
+
+                        // this merge will effectively decrement our shopping list
+                        Item listResult = Item.merge(i, decrement);
+                        shoppingMap.put(i.getName(), listResult);
+                    } // Null case just means store didn't have our Item at all
+                }
             });
         }
     }
@@ -173,5 +203,42 @@ public class Shopper implements Runnable {
     @Override
     public void run() {
         shop();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    // general Object methods
+
+    // No idea why IDEA generates this but then complains.
+    // Not expected to be used enough to really matter either way
+    @SuppressWarnings("StringBufferReplaceableByString")
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("Shopper{");
+        sb.append("id=").append(id);
+        sb.append(", waitable=").append(waitable);
+        sb.append(", shoppingMap=").append(shoppingMap);
+        sb.append(", cart=").append(cart);
+        sb.append(", receipt=").append(receipt);
+        sb.append(", canShop=").append(canShop);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Shopper shopper = (Shopper) o;
+
+        return id.equals(shopper.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

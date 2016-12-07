@@ -1,6 +1,7 @@
 package net.suzio.store.model;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -13,8 +14,16 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 @SuppressWarnings("WeakerAccess")
 public class Store {
+    private static final int SHOPPER_WAIT_SLEEP = 5000;
+
     // our waiting shoppers are always in a Queue
     private final LinkedBlockingQueue<Shopper> waitingShoppers;
+
+    // try concurrent structure here.
+    // These are Shoppers that are actively shopping but not yet in a Register queue
+    // We need to check in our main loop to try to ensure that all of these Shoppers
+    // reach a Register for checkout before we stop
+    private final ConcurrentHashMap<Integer, Shopper> shoppingShoppers = new ConcurrentHashMap<>();
 
     // use non-concurrent Maps, and lock selectively -- possible ConcurrentHashMap is better,
     // but won't optimize just yet -- behavior of adding and removing Registers during run() loop
@@ -30,6 +39,7 @@ public class Store {
     private volatile boolean open;
     private volatile boolean running = true;
     private volatile boolean registerAdd = true;
+    private volatile boolean allowCheckout = true;
 
     // Constructors
 
@@ -60,7 +70,7 @@ public class Store {
     // Store main loop
     public void run() {
         // should loop around a running state
-        //while(running) {
+        // while(running) {
         // take any waiting Shoppers and let them proceed; don't wait on entrance of new Shoppers,
         // since we'll catch them next time around
         Shopper waiting;
@@ -68,7 +78,7 @@ public class Store {
             waiting.allowShop();
         }
 
-        // run each Register's checkout logic --
+        // run each Register's checkout logic.
         // if a Register is added or removed outside this loop, we either get it next
         // time or handle it if we close before then
         Lock rLock = registerLock.readLock();
@@ -82,13 +92,35 @@ public class Store {
         //}
 
         // no longer running main loop -- perform closing actions
-        // no more Shoppers allowed in
+        // no more Shoppers allowed in; no more modifications to our Map of shopping Shoppers
         open = false;
+
+        // We can now know what Shoppers (if any) are still not in a checkout line in our Registers
+        // We want them to make them stop shopping and move into the checkout
+        if (!shoppingShoppers.isEmpty()) {
+            shoppingShoppers.values().forEach(Shopper::stopShopping);
+
+            // That takes some time (at most one more Item taken, then enqueueing Shopper into a Register line).
+            // Those actions run inside the Shopper thread, so we can suspend this thread for a short time to allow
+            // those actions to happen.
+            // After that, the Shopper threads will continue, but they won't  won't checkout and
+            // we'll switch to having them put all Items back into stock.
+            try {
+                Thread.sleep(SHOPPER_WAIT_SLEEP);
+            } catch (InterruptedException e) {
+                // If we stop early, no big dea; we just won't have given Shoppers full time to complete
+            }
+        }
+
+        // Son't let any more Shoppers enqueue in a Register
+        allowCheckout = false;
+
+
         // no more Registers added. If between now and lock acquisition below a Register gets removed by another thread,
         // it will still checkout its line of Shoppers just as we do below.
         registerAdd = false;
 
-        // clear Register pool and checkout the shoppers in each
+        // clear Register pool and checkout the shoppers in each.
         // lock and don't let go until we've processed all Registers.  Only this thread should be allowed to change the Registers now
         Lock wLock = registerLock.writeLock();
         wLock.lock();
@@ -105,7 +137,7 @@ public class Store {
     // External API -- query and change state
 
     /**
-     * determines if the store is open
+     * Determines if the store is open. Informative only.
      *
      * @return true if open
      */
@@ -114,7 +146,7 @@ public class Store {
     }
 
     /**
-     * determines if the store is closed
+     * Determines if the store is closed. Informative only.
      *
      * @return true if closed
      */
@@ -129,6 +161,7 @@ public class Store {
      */
     public void open() {
         open = true;
+        shoppingShoppers.clear();
     }
 
     /**
@@ -298,6 +331,8 @@ public class Store {
      */
     public boolean startShopper(Shopper shopper) {
         if (isOpen()) {
+            // track the Shopper
+            shoppingShoppers.put(shopper.getId(), shopper);
             shopper.allowShop();
             return true;
         } else if (shopper.isWaitable()) {
@@ -306,12 +341,34 @@ public class Store {
         return false;
     }
 
-    public void startShopperCheckout(Shopper shopper) {
-        // just assign all to first Register now -- should still work
-        List<Register> availableRegisters = new ArrayList<>(registers.values());
-        if (!availableRegisters.isEmpty()) {
-            availableRegisters.get(0).addShopper(shopper);
+    public boolean startShopperCheckout(Shopper shopper) {
+        boolean checkoutSuccess = true;
+        if (allowCheckout) {
+            // just assign all to first Register now -- should still work
+            List<Register> availableRegisters = new ArrayList<>(registers.values());
+            // If there are no Registers in service, , you cannot checkout
+            if (!availableRegisters.isEmpty()) {
+                availableRegisters.get(0).addShopper(shopper);
+            } else {
+                checkoutSuccess = false;
+            }
+        } else {
+            checkoutSuccess = false;
         }
+
+        if (!checkoutSuccess) {
+            // We must restock Items -- Shopper handles details of what a failed
+            // checkout means to it, best nt to reach into its state but rather we
+            // just choose to signal failure
+            Cart cart = shopper.getCart();
+            if (cart != null) {
+                List<Item> cartItems = cart.getItems();
+                cartItems.forEach(this::addItem);
+            }
+        }
+
+        shoppingShoppers.remove(shopper.getId());
+        return checkoutSuccess;
     }
     // end of shopper interactions
 }

@@ -18,26 +18,6 @@ import static org.mockito.Mockito.when;
 public class SimpleShoppingProcessTests {
 
     @Test
-    public void testFailShop() {
-        Store store = mock(Store.class);
-
-        // Store won't let us shop at all
-        when(store.startShopper(any(Shopper.class))).thenReturn(false);
-
-        List<Item> items = Arrays.asList(
-                new Item("Peanut Butter", 5.99, 1, "jar"),
-                new Item("Jelly", 5.99, 1, "jar")
-        );
-
-        Shopper shopper = new Shopper(store, items);
-        shopper.shop();
-        List<Item> doneShoppingList = shopper.getShoppingList();
-        assertNotNull(doneShoppingList);
-        assertEquals("Shopper's finished Item list in expected non-shopping case is not of expected size", items.size(), doneShoppingList.size());
-        items.forEach(i -> assertTrue("Shopper's finished list does not contain expected  Item " + i, doneShoppingList.contains(i)));
-    }
-
-    @Test
     public void testShopGetsAllItemsExactly() {
         Store store = mock(Store.class);
 
@@ -50,8 +30,9 @@ public class SimpleShoppingProcessTests {
         ArrayList<Item> items = new ArrayList<>(itemsMap.values());
 
         // Mocking behavior:
-        // Store must let us shop
+        // Store must let us shop and checkout
         when(store.startShopper(any(Shopper.class))).thenReturn(true);
+        when(store.startShopperCheckout(any(Shopper.class))).thenReturn(true);
 
         // Store must return back anything we ask for
         when(store.takeItem(anyString(), anyInt())).then(invoke -> {
@@ -60,7 +41,7 @@ public class SimpleShoppingProcessTests {
         });
 
         Shopper shopper = new Shopper(store, items);
-        shopper.shop();
+        shopper.run();
 
         // Expect a shopping list full of empty items
         List<Item> doneShoppingList = shopper.getShoppingList();
@@ -70,6 +51,7 @@ public class SimpleShoppingProcessTests {
                                                    0, i.getQuantity()));
 
         Cart cart = shopper.getCart();
+        assertNotNull("Shopper's cart was null after shopping when all items should have been found", cart);
         List<Item> cartItems = cart.getItems();
         assertNotNull(cartItems);
         assertEquals("Shopping cart contains incorrect number of Items", items.size(), cartItems.size());
@@ -83,49 +65,64 @@ public class SimpleShoppingProcessTests {
     }
 
     @Test
-    public void testShopSkipsUnknownItem() {
+    public void testFailShop() {
         Store store = mock(Store.class);
 
-        List<Item> items;
-        Item pb = new Item("Peanut Butter", 5.99, 1, "jar");
-        Item unknown = new Item("Unknown", 5.99, 1, "jar");
-        items = Arrays.asList(
-                pb,
-                unknown
+        // Store won't let us shop at all
+        when(store.startShopper(any(Shopper.class))).thenReturn(false);
+
+        List<Item> items = Arrays.asList(
+                new Item("Peanut Butter", 5.99, 1, "jar"),
+                new Item("Jelly", 5.99, 1, "jar")
         );
 
-        // Mocking behavior:
-        // Store must let us shop
-        when(store.startShopper(any(Shopper.class))).thenReturn(true);
-        // store returns valid item in known case, null otherwise (default behavior of mock)
-        when(store.takeItem(anyString(), anyInt())).then(invoke -> {
-            String name = invoke.getArgument(0);
-            return name.equals(pb.getName()) ? pb : null;
-        });
-
         Shopper shopper = new Shopper(store, items);
-        shopper.shop();
-
-        // Expect a shopping list with on unfulfilled Item, and a cart wth the one known Item
+        shopper.run();
         List<Item> doneShoppingList = shopper.getShoppingList();
         assertNotNull(doneShoppingList);
-        assertEquals("Shopping list from shopping run with unknown item is of wrong size", 2, doneShoppingList.size());
+        assertEquals("Shopper's finished Item list in expected non-shopping case is not of expected size", items.size(), doneShoppingList.size());
+        items.forEach(i -> assertTrue("Shopper's finished list does not contain expected  Item " + i, doneShoppingList.contains(i)));
+    }
 
-        Map<String, Item> doneItemsMap = ItemUtil.itemsToMap(doneShoppingList);
-        Item unknownFinal = doneItemsMap.get(unknown.getName());
-        assertNotNull(unknownFinal);
-        assertTrue("Unknown item on finished shopping list is not equal to expected object", unknown.equals(unknownFinal));
+    @Test
+    public void testFailCheckout() {
+        // test items - we want them both as list and map for ease of test
+        Item pb = new Item("Peanut Butter", 5.99, 1, "jar");
+        Item jelly = new Item("Jelly", 5.99, 1, "jar");
 
-        Item pbFinal = doneItemsMap.get(pb.getName());
-        assertNotNull(pbFinal);
-        assertEquals("Known item on finished shopping list does not have expected quantity", 0, pbFinal.getQuantity());
+        Map<String, Item> itemsMap = new HashMap<>();
+        itemsMap.put(pb.getName(), pb);
+        itemsMap.put(jelly.getName(), jelly);
+        ArrayList<Item> items = new ArrayList<>(itemsMap.values());
+        Store store = mock(Store.class);
 
+        // mocking behavior:
+        // Store must let us shop
+        when(store.startShopper(any(Shopper.class))).thenReturn(true);
 
+        // Store must return back anything we ask for
+        when(store.takeItem(anyString(), anyInt())).then(invoke -> {
+            String name = invoke.getArgument(0);
+            return itemsMap.get(name);
+        });
+
+        //.. but fail at checkout
+        when(store.startShopperCheckout(any(Shopper.class))).thenReturn(false);
+
+        Shopper shopper = new Shopper(store, items);
+        shopper.run();
+
+        // Shopper should have empty Cart, but none of the items on its list have been fulfilled
         Cart cart = shopper.getCart();
-        List<Item> cartItems = cart.getItems();
-        assertNotNull(cartItems);
-        assertEquals("Shopping cart contains incorrect number of Items", 1, cartItems.size());
-        Item foundItem = cartItems.get(0);
-        assertEquals("Item found on shopping run does not equal expected", pb, foundItem);
+        // Just in case
+        assertNotNull("Shopper's cart was null after shopping run when checkout failed", cart);
+        assertTrue("Shopper cart should be empty after run when checkout failed", cart.getItems().isEmpty());
+        List<Item> doneShoppingList = shopper.getShoppingList();
+        assertNotNull(doneShoppingList);
+        assertEquals("Shopper's finished Item list in expected non-shopping case is not of expected size", items.size(), doneShoppingList.size());
+        items.forEach(i -> assertTrue("Shopper's finished list does not contain expected  Item " + i, doneShoppingList.contains(i)));
+
+        // should not have Receipt
+        assertNull("shopper should not have a Receipt when checkout failed", shopper.getReceipt());
     }
 }

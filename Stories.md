@@ -122,9 +122,19 @@ Clean up tests , address code inspections, and revisit specification to review c
 * ~~Review all inspections in project and fix or (very selectively) suppress where appropriate.~~
 
 ##Iteration Eleven
-* Check logic in Store/Shopper/Register against dataflow and choose if Store 
-  needs to track Shoppers
-   * this is directly to address dangling story from Iteration Nine
+*~~Check logic in Store/Shopper/Register against dataflow and choose if Store 
+  needs to track Shoppers~~
+   * ~~this is to directly address dangling story from Iteration Nine~~
+
+##Iteration Twelve
+
+##Focus
+Move stock control out to external repository
+
+* Add ItemRepository
+    ** Should match expected methods of a
+    ** Implement simplest sample possible
+
 
  
 ## Backlog / Discussion points
